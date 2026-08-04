@@ -1,0 +1,16 @@
+# Jekyll build output & caches
+_site
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+
+# Bundler gems (installed locally via BUNDLE_PATH)
+vendor
+vendor/bundle
+
+# direnv / nix-direnv cache
+.direnv/
+.direnv
+
+# Editor / OS cruft
+.DS_Store
