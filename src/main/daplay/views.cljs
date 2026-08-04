@@ -59,7 +59,7 @@
   [:header.hero
    [:h1.hero__title "daplay"]
    [:p.hero__lede
-    "A personal board of useful links — each tile is Markdown, rendered in ClojureScript."]])
+    "A personal board of useful links and notes."]])
 
 (defn- tile-card [{:keys [title summary url markdown]} index]
   (let [html (md/render markdown)]
@@ -80,7 +80,7 @@
     [:div.section__head
      [:h2 "Tiles"]
      [:p (or (:description site)
-             "Resource lists drawn from Markdown files.")]]
+             "Curated lists of useful links.")]]
     [:div.tile-grid
      (for [[i tile] (map-indexed vector tiles)]
        ^{:key (:url tile)}
