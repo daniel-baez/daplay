@@ -8,6 +8,7 @@
   (r/atom {:status :loading
            :route  "/"
            :site   nil
+           :tiles  []
            :posts  []
            :pages  []
            :error  nil}))
@@ -35,6 +36,7 @@
                    (swap! !state assoc
                           :status :ready
                           :site   (:site payload)
+                          :tiles  (vec (:tiles payload))
                           :posts  (vec (:posts payload))
                           :pages  (vec (:pages payload))
                           :error  nil)

@@ -1,5 +1,5 @@
 ---
 layout: app
-title: Journal
+title: Home
 permalink: /
 ---

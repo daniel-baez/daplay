@@ -18,44 +18,57 @@
    [:div.nav__links
     [:a {:href "/"
          :class (when (= route "/") "is-active")}
-     "Journal"]
+     "Home"]
     [:a {:href "/about/"
          :class (when (= route "/about/") "is-active")}
      "About"]]])
 
 (defn- hero []
   [:header.hero
-   [:p.hero__eyebrow "daplay.cl"]
    [:h1.hero__title "daplay"]
    [:p.hero__lede
-    "Markdown lives in Jekyll. The interface is ClojureScript — fast, expressive, and built for play."]])
+    "A personal board of useful links — each tile is Markdown, rendered in ClojureScript."]])
 
-(defn- post-card [{:keys [title url date excerpt]} index]
-  [:a.post-card
-   {:href url
-    :style {"--i" index}}
-   [:time.post-card__date (format-date date)]
-   [:h2.post-card__title title]
-   (when (seq excerpt)
-     [:p.post-card__excerpt excerpt])])
+(defn- tile-card [{:keys [title summary url markdown]} index]
+  (let [html (md/render markdown)]
+    [:article.tile
+     {:style {"--i" index}}
+     [:a.tile__head {:href url}
+      [:h2.tile__title title]
+      (when (seq summary)
+        [:p.tile__summary summary])]
+     (when (seq html)
+       [:div.tile__body.prose
+        {:dangerouslySetInnerHTML {:__html html}}])]))
 
-(defn home [{:keys [site posts]}]
+(defn home [{:keys [site tiles]}]
   [:div
    [hero]
    [:section.section
     [:div.section__head
-     [:h2 "Journal"]
+     [:h2 "Tiles"]
      [:p (or (:description site)
-             "Notes rendered from raw Markdown via ClojureScript.")]]
-    [:div.post-list
-     (for [[i post] (map-indexed vector posts)]
-       ^{:key (:url post)}
-       [post-card post i])]]])
+             "Resource lists drawn from Markdown files.")]]
+    [:div.tile-grid
+     (for [[i tile] (map-indexed vector tiles)]
+       ^{:key (:url tile)}
+       [tile-card tile i])]]])
+
+(defn tile-page [{:keys [tile]}]
+  (let [html (md/render (:markdown tile))]
+    [:article.post
+     [:a.post__back {:href "/"} "← Home"]
+     [:header.post__header
+      [:h1.post__title (:title tile)]
+      (when (seq (:summary tile))
+        [:p.post__summary (:summary tile)])]
+     [:div.prose
+      {:dangerouslySetInnerHTML {:__html html}}]]))
 
 (defn post-page [{:keys [post]}]
   (let [html (md/render (:markdown post))]
     [:article.post
-     [:a.post__back {:href "/"} "← Journal"]
+     [:a.post__back {:href "/"} "← Home"]
      [:header.post__header
       [:time.post__date (format-date (:date post))]
       [:h1.post__title (:title post)]]
@@ -65,7 +78,7 @@
 (defn page-view [{:keys [page]}]
   (let [html (md/render (:markdown page))]
     [:article.post
-     [:a.post__back {:href "/"} "← Journal"]
+     [:a.post__back {:href "/"} "← Home"]
      [:header.post__header
       [:h1.post__title (:title page)]]
      [:div.prose
@@ -85,9 +98,10 @@
    [:p "Nothing at this path."]
    [:a {:href "/"} "Back home"]])
 
-(defn shell [{:keys [route site posts pages status error]}]
+(defn shell [{:keys [route site posts pages tiles status error]}]
   (let [post (some #(when (= (:url %) route) %) posts)
-        page (some #(when (= (:url %) route) %) pages)]
+        page (some #(when (= (:url %) route) %) pages)
+        tile (some #(when (= (:url %) route) %) tiles)]
     [:div.app
      [:div.app__atmosphere {:aria-hidden "true"}]
      [nav {:route route}]
@@ -96,7 +110,8 @@
         :loading [loading]
         :error   [error-view error]
         (cond
-          (= route "/") [home {:site site :posts posts}]
+          (= route "/") [home {:site site :tiles tiles}]
+          tile          [tile-page {:tile tile}]
           post          [post-page {:post post}]
           page          [page-view {:page page}]
           :else         [not-found]))]

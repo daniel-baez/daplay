@@ -5,14 +5,15 @@
 This repository is a **Jekyll + ClojureScript** site deployed via GitHub Pages
 (see `CNAME` → `daplay.cl`).
 
-- **Content (Jekyll)**: Markdown in `_posts/` and pages (`about.markdown`, …).
-  Jekyll stashes raw Markdown (`_plugins/stash_raw_markdown.rb`) and exports it
-  as `/assets/data/site.json`. Liquid/minima are not the UI layer.
+- **Content (Jekyll)**: Markdown tiles in `_tiles/` (landing board), plus
+  `_posts/` and pages (`about.markdown`, …). Jekyll stashes raw Markdown
+  (`_plugins/stash_raw_markdown.rb`) and exports it as `/assets/data/site.json`.
+  Liquid/minima are not the UI layer.
 - **UI (ClojureScript)**: `src/main/daplay/` compiled by **shadow-cljs** into
   `assets/js/`. Reagent mounts on `#app` (`_layouts/app.html`) and renders from
-  the JSON data (markdown-it in the browser).
+  the JSON data (markdown-it in the browser). The home route draws a tile grid.
 - **Key files**: `_config.yml`, `_layouts/app.html`, `assets/data/site.json`,
-  `assets/css/daplay.css`, `shadow-cljs.edn`, `package.json`, `Gemfile`.
+  `assets/css/daplay.css`, `_tiles/`, `shadow-cljs.edn`, `package.json`, `Gemfile`.
 - **Build output**: `_site/` (gitignored). Also gitignored: `node_modules/`,
   `.shadow-cljs/`, `assets/js/`, `vendor/bundle`, Jekyll caches.
 

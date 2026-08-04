@@ -1,7 +1,7 @@
 title: daplay
 email: your-email@example.com
 description: >-
-  Markdown in Jekyll. Interface in ClojureScript.
+  Personal resource tiles — Markdown in Jekyll, interface in ClojureScript.
 baseurl: ""
 url: "https://daplay.cl"
 github_username: daniel-baez
@@ -9,6 +9,11 @@ github_username: daniel-baez
 # Build settings — pages use the CLJS `app` layout; no theme UI.
 plugins:
   - jekyll-feed
+
+collections:
+  tiles:
+    output: true
+    permalink: /tiles/:name/
 
 defaults:
   - scope:
@@ -19,6 +24,11 @@ defaults:
   - scope:
       path: ""
       type: pages
+    values:
+      layout: app
+  - scope:
+      path: ""
+      type: tiles
     values:
       layout: app
 
