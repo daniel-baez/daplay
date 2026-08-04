@@ -5,6 +5,7 @@ description: >-
 baseurl: ""
 url: "https://daplay.cl"
 github_username: daniel-baez
+github_repo: daniel-baez/daplay
 
 # Build settings — pages use the CLJS `app` layout; no theme UI.
 plugins:
