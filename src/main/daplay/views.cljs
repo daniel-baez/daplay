@@ -30,6 +30,52 @@
              " -3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2"
              " 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z")}]])
 
+(defn- clamp [v lo hi]
+  (min hi (max lo v)))
+
+(defn- glare-move! [^js el ^js e]
+  (let [rect (.getBoundingClientRect el)
+        px   (-> (- (.-clientX e) (.-left rect)) (/ (.-width rect)) (* 100) (clamp 0 100))
+        py   (-> (- (.-clientY e) (.-top rect)) (/ (.-height rect)) (* 100) (clamp 0 100))]
+    (.setProperty (.-style el) "--mx" (str px "%"))
+    (.setProperty (.-style el) "--my" (str py "%"))))
+
+(defn- glare-reset! [^js el]
+  (.setProperty (.-style el) "--mx" "50%")
+  (.setProperty (.-style el) "--my" "20%"))
+
+(defn- attach-glare!
+  "Tracks the pointer over `el` and writes --mx/--my straight to its DOM
+  style, rAF-throttled. Deliberately bypasses Reagent/`!state` so pointer
+  movement never triggers a React re-render of the app."
+  [^js el]
+  (let [raf     (atom nil)
+        pending (atom nil)]
+    (.addEventListener el "pointermove"
+      (fn [^js e]
+        (reset! pending e)
+        (when-not @raf
+          (reset! raf
+                  (js/requestAnimationFrame
+                   (fn []
+                     (reset! raf nil)
+                     (when-let [ev @pending]
+                       (glare-move! el ev))))))))
+    (.addEventListener el "pointerleave"
+      (fn [_]
+        (when-let [id @raf]
+          (js/cancelAnimationFrame id)
+          (reset! raf nil))
+        (glare-reset! el)))))
+
+(defn- forkme-band-ref
+  "Stable top-level ref callback (unlike an inline fn, its identity never
+  changes across re-renders) so listeners are bound exactly once per node."
+  [^js el]
+  (when (and el (not (.-__glareBound el)))
+    (set! (.-__glareBound el) true)
+    (attach-glare! el)))
+
 (defn- forkme [site]
   (when-let [repo (or (:github_repo site)
                       (some-> (:github_username site) (str "/daplay")))]
@@ -39,7 +85,8 @@
       :target "_blank"
       :aria-label "Fork me on GitHub"}
      [:span.forkme__glow {:aria-hidden "true"}]
-     [:span.forkme__band
+     [:span.forkme__band {:ref forkme-band-ref}
+      [:span.forkme__glare {:aria-hidden "true"}]
       [github-mark]
       [:span.forkme__copy
        [:span.forkme__kicker "Open source"]
