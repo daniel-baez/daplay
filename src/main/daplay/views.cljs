@@ -52,7 +52,7 @@
     [:div.tile-grid
      (for [[i tile] (map-indexed vector tiles)]
        ^{:key (:url tile)}
-       [tile-card tile i])]]))
+       [tile-card tile i])]]])
 
 (defn tile-page [{:keys [tile]}]
   (let [html (md/render (:markdown tile))]
