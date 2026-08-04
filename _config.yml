@@ -1,7 +1,7 @@
 title: daplay
 email: your-email@example.com
 description: >-
-  Personal resource tiles — Markdown in Jekyll, interface in ClojureScript.
+  A personal board of useful links and notes.
 baseurl: ""
 url: "https://daplay.cl"
 github_username: daniel-baez
