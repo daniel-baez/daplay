@@ -10,6 +10,21 @@ layout: null
     "email": {{ site.email | jsonify }},
     "github_username": {{ site.github_username | jsonify }}
   },
+  "tiles": [
+    {%- assign sorted_tiles = site.tiles | sort: "order" -%}
+    {%- assign first_tile = true -%}
+    {%- for tile in sorted_tiles -%}
+    {%- unless first_tile -%},{%- endunless -%}
+    {
+      "title": {{ tile.title | jsonify }},
+      "url": {{ tile.url | jsonify }},
+      "summary": {{ tile.summary | default: "" | jsonify }},
+      "order": {{ tile.order | default: 0 | jsonify }},
+      "markdown": {{ tile.raw_markdown | default: "" | jsonify }}
+    }
+    {%- assign first_tile = false -%}
+    {%- endfor -%}
+  ],
   "posts": [
     {%- assign first_post = true -%}
     {%- for post in site.posts -%}
