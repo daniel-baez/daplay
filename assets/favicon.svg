@@ -1,24 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="daplay">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="d4p · daplay">
   <defs>
-    <linearGradient id="bg" x1="2" y1="1" x2="30" y2="31" gradientUnits="userSpaceOnUse">
+    <linearGradient id="bg" x1="4" y1="2" x2="60" y2="62" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#0d3d32"/>
-      <stop offset="58%" stop-color="#1f6f5b"/>
-      <stop offset="100%" stop-color="#a8db2a"/>
+      <stop offset="55%" stop-color="#1f6f5b"/>
+      <stop offset="100%" stop-color="#2a705a"/>
     </linearGradient>
   </defs>
 
-  <rect width="32" height="32" rx="8" fill="url(#bg)"/>
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
 
-  <!--
-    Lowercase d: tall right stem (ascender) + bowl sitting on the x-height,
-    so it reads as "d" not "a" at tiny sizes.
-  -->
-  <path
-    fill="#f3f7f4"
-    fill-rule="evenodd"
-    d="M21.9 4.2c.95 0 1.7.75 1.7 1.7v20.2c0 .95-.75 1.7-1.7 1.7h-2.05c-.95 0-1.7-.75-1.7-1.7v-1.55c-1.4 1.35-3.45 2.15-5.9 2.15-5.15 0-8.9-3.85-8.9-9.1s3.75-9.1 8.9-9.1c2.45 0 4.5.8 5.9 2.15V5.9c0-.95.75-1.7 1.7-1.7h2.05zm-9.65 8.55c-2.95 0-5.05 2.2-5.05 5.55s2.1 5.55 5.05 5.55 5.05-2.2 5.05-5.55-2.1-5.55-5.05-5.55z"
-  />
+  <!-- Childhood mark "d4p" — dap / daplay -->
+  <g transform="translate(1.5 0)">
+    <!-- d -->
+    <rect x="17.6" y="9.5" width="5.2" height="45" rx="2.4" fill="#f3f7f4"/>
+    <circle cx="12" cy="34" r="9.4" fill="none" stroke="#f3f7f4" stroke-width="5"/>
 
-  <!-- Play triangle in the counter -->
-  <path fill="#c8f531" d="M10.55 14.85v5.5l4.85-2.75z"/>
+    <!-- 4 -->
+    <path
+      fill="#c8f531"
+      d="M34.8 21v11.2h4.2v4.8h-4.2V52h-5.2V37h-6.6v-4.2L32.2 14.5h5.4L34.8 21zm-5.2 11.2h5.2l1.8-5.8-7 5.8z"
+    />
+
+    <!-- p -->
+    <rect x="41.2" y="20" width="5.2" height="38" rx="2.4" fill="#f3f7f4"/>
+    <circle cx="52" cy="34" r="9.4" fill="none" stroke="#f3f7f4" stroke-width="5"/>
+  </g>
 </svg>

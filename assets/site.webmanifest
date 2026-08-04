@@ -1,7 +1,7 @@
 {
   "name": "daplay",
-  "short_name": "daplay",
-  "description": "Markdown in Jekyll. Interface in ClojureScript.",
+  "short_name": "d4p",
+  "description": "daplay — Markdown in Jekyll. Interface in ClojureScript.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#eef6f1",
