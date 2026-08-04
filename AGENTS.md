@@ -2,19 +2,30 @@
 
 ## Cursor Cloud specific instructions
 
-This repository is a **static website** (a Bootstrap 5 starter page) deployed via GitHub Pages
-(see `CNAME` → `daplay.cl`). There is no package manager, build step, test suite, or backend.
+This repository is a **Jekyll site** (minima theme) deployed via GitHub Pages
+(see `CNAME` → `daplay.cl`). It was scaffolded with `jekyll new`.
 
-- **Files**: `index.html` is the entire app. It pulls Bootstrap CSS/JS from the jsDelivr CDN.
-- **Run (dev)**: serve the folder statically, e.g. `python3 -m http.server 8000` from the repo root, then open `http://localhost:8000/`.
+- **Key files**: `_config.yml` (site config), `index.markdown`, `about.markdown`, `404.html`, `_posts/` (blog posts), `Gemfile` / `Gemfile.lock` (Ruby deps: `jekyll` 4.x + `minima` + `jekyll-feed`).
+- **Build output**: `_site/` (gitignored). Caches `.jekyll-cache/`, `.sass-cache/` and gems in `vendor/` are gitignored too.
+- **Gems are installed locally** into `vendor/bundle` (via `BUNDLE_PATH`), never globally.
+
+### Running the site
+
+The `flake.nix` dev shell provides `ruby`, `bundler`, a C toolchain, and a `serve` helper.
+
+- `nix develop` → then `serve` (runs `bundle install` if needed, then `bundle exec jekyll serve --host 0.0.0.0`, on port `4000`). Pass Jekyll args through, e.g. `serve --livereload` or `serve --port 4001`.
+- `nix run` (or `nix run .`) starts the same Jekyll server without entering the shell.
+- Without the helper: `bundle install` then `bundle exec jekyll serve` from the repo root, then open `http://localhost:4000/`.
 
 ### Nix + direnv workflow
 
-The repo ships a `flake.nix` and `.envrc` for a reproducible dev environment.
+- Flakes must be enabled. With [direnv](https://direnv.net) + [nix-direnv](https://github.com/nix-community/nix-direnv): run `direnv allow` once and the dev shell auto-loads on `cd`. `use flake` in `.envrc` requires nix-direnv sourced from your `direnvrc`.
+- Flakes only see git-tracked files — `git add` new files before `nix develop`/`direnv` picks them up.
+- On a VM without systemd, start the Nix daemon manually (`sudo nix-daemon &`) before using `nix`.
 
-- With [Nix](https://nixos.org) (flakes enabled): `nix develop` drops you into a shell with `python3`, `git`, and a `serve` helper on `PATH`. `serve [port]` (default `8000`) serves the static site.
-- `nix run` (or `nix run . -- <port>`) starts the static server directly without entering the dev shell.
-- With [direnv](https://direnv.net) + [nix-direnv](https://github.com/nix-community/nix-direnv): run `direnv allow` once; the flake dev shell then loads automatically whenever you `cd` into the repo. `use flake` in `.envrc` requires nix-direnv to be sourced from your `direnvrc`.
-- `.direnv/` is a local cache and is gitignored. Flakes only see git-tracked files, so `git add` new files before `nix develop`/`direnv` will pick them up.
-- **Expected 404s**: `index.html` references `styles.css` and `main.js`, which do not exist in the repo (leftover placeholders from the Bootstrap starter template). Their 404s are harmless — do not add these files unless the task requires it.
-- **Lint / test / build**: none exist. There is nothing to install or compile.
+### Notes
+
+- First `serve`/`nix run` compiles/downloads native gems (e.g. `sass-embedded`, `google-protobuf`) into `vendor/bundle`; the C toolchain in the flake covers this. Subsequent runs are fast.
+- The minima theme emits harmless Sass `lighten()` deprecation warnings on build — safe to ignore.
+- `_config.yml` is **not** hot-reloaded by `jekyll serve`; restart the server after editing it.
+- **Deployment note**: the scaffold pins Jekyll 4.x. GitHub Pages' classic (automatic) build uses Jekyll 3.x, so to deploy this on Pages use a GitHub Actions Pages workflow (or switch the `Gemfile` to the `github-pages` gem). No CI workflow is committed yet.

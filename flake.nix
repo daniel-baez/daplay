@@ -1,5 +1,5 @@
 {
-  description = "daplay - static Bootstrap site dev environment";
+  description = "daplay - Jekyll site dev environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -7,7 +7,6 @@
 
   outputs = { self, nixpkgs }:
     let
-      # Systems we support the dev shell on.
       supportedSystems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -16,43 +15,59 @@
       ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
       pkgsFor = system: import nixpkgs { inherit system; };
+
+      # `serve` installs gems (if needed) and runs the Jekyll dev server.
+      serveFor = pkgs: pkgs.writeShellApplication {
+        name = "serve";
+        runtimeInputs = [ pkgs.ruby pkgs.bundler pkgs.gcc pkgs.gnumake ];
+        text = ''
+          # Keep gems local to the repo so nothing is installed globally.
+          export BUNDLE_PATH="''${BUNDLE_PATH:-vendor/bundle}"
+          if ! bundle check >/dev/null 2>&1; then
+            echo "Installing gems into $BUNDLE_PATH ..."
+            bundle install
+          fi
+          exec bundle exec jekyll serve --host 0.0.0.0 "$@"
+        '';
+      };
     in
     {
       devShells = forAllSystems (system:
         let
           pkgs = pkgsFor system;
-
-          # `serve` starts a local static file server for the site.
-          serve = pkgs.writeShellScriptBin "serve" ''
-            port="''${1:-8000}"
-            echo "Serving $(pwd) at http://localhost:$port/ (Ctrl-C to stop)"
-            exec ${pkgs.python3}/bin/python3 -m http.server "$port"
-          '';
+          serve = serveFor pkgs;
         in
         {
           default = pkgs.mkShell {
             packages = [
-              pkgs.python3
+              pkgs.ruby
+              pkgs.bundler
+              pkgs.gcc
+              pkgs.gnumake
               pkgs.git
               serve
             ];
 
+            # Gems live in ./vendor/bundle (gitignored) instead of globally.
+            BUNDLE_PATH = "vendor/bundle";
+
             shellHook = ''
-              echo "daplay dev shell ready."
-              echo "  serve [port]   # serve the static site (default port 8000)"
+              echo "daplay Jekyll dev shell ready."
+              echo "  serve [jekyll args]   # bundle install (if needed) + jekyll serve on 0.0.0.0:4000"
+              echo "  e.g. serve --livereload"
             '';
           };
         });
 
-      # Convenience: `nix run` starts the static server.
+      # `nix run` starts the Jekyll dev server (installs gems on first run).
       apps = forAllSystems (system:
-        let pkgs = pkgsFor system;
+        let
+          pkgs = pkgsFor system;
+          serve = serveFor pkgs;
         in {
           default = {
             type = "app";
-            program = "${pkgs.writeShellScript "serve-app" ''
-              exec ${pkgs.python3}/bin/python3 -m http.server "''${1:-8000}"
-            ''}";
+            program = "${serve}/bin/serve";
           };
         });
     };
