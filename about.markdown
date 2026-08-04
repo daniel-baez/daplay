@@ -4,5 +4,5 @@ title: About
 permalink: /about/
 ---
 
-**daplay** is a personal board of useful links and notes — little collections
-I keep coming back to, gathered in one place.
+**daplay** is a personal blog and a small utility board — notes I publish here,
+plus curated link collections (tiles) I keep coming back to.

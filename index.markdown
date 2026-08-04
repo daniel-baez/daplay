@@ -1,5 +1,5 @@
 ---
 layout: app
-title: Home
+title: Blog
 permalink: /
 ---
