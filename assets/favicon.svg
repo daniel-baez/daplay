@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="daplay">
+  <defs>
+    <linearGradient id="bg" x1="2" y1="1" x2="30" y2="31" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0d3d32"/>
+      <stop offset="58%" stop-color="#1f6f5b"/>
+      <stop offset="100%" stop-color="#a8db2a"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="32" height="32" rx="8" fill="url(#bg)"/>
+
+  <!--
+    Lowercase d: tall right stem (ascender) + bowl sitting on the x-height,
+    so it reads as "d" not "a" at tiny sizes.
+  -->
+  <path
+    fill="#f3f7f4"
+    fill-rule="evenodd"
+    d="M21.9 4.2c.95 0 1.7.75 1.7 1.7v20.2c0 .95-.75 1.7-1.7 1.7h-2.05c-.95 0-1.7-.75-1.7-1.7v-1.55c-1.4 1.35-3.45 2.15-5.9 2.15-5.15 0-8.9-3.85-8.9-9.1s3.75-9.1 8.9-9.1c2.45 0 4.5.8 5.9 2.15V5.9c0-.95.75-1.7 1.7-1.7h2.05zm-9.65 8.55c-2.95 0-5.05 2.2-5.05 5.55s2.1 5.55 5.05 5.55 5.05-2.2 5.05-5.55-2.1-5.55-5.05-5.55z"
+  />
+
+  <!-- Play triangle in the counter -->
+  <path fill="#c8f531" d="M10.55 14.85v5.5l4.85-2.75z"/>
+</svg>
