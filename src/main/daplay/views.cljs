@@ -60,11 +60,22 @@
          :class (when (= route "/about/") "is-active")}
      "About"]]])
 
-(defn- hero []
-  [:header.hero
-   [:h1.hero__title "daplay"]
-   [:p.hero__lede
-    "A personal blog — notes and writing, with a side of useful link boards."]])
+(defn- montaigne-epigraph
+  "Opening epigraph from Montaigne's Essais — signals a personal site."
+  []
+  [:figure.montaigne
+   [:p.montaigne__eyebrow "Au lecteur"]
+   [:blockquote.montaigne__quote {:cite "https://fr.wikisource.org/wiki/Essais/Adresse_au_lecteur"
+                                  :lang "fr"}
+    [:span.montaigne__mark {:aria-hidden "true"} "«"]
+    [:p.montaigne__fr
+     [:span.montaigne__fr-lead "Ainsi, lecteur, je suis moi-même la matière de mon livre"]
+     [:span.montaigne__fr-rest
+      " : ce n’est pas raison que tu emploies ton loisir en un sujet si frivole et si vain."]]]
+   [:figcaption.montaigne__caption
+    [:p.montaigne__en {:lang "en"}
+     "Thus, reader, I myself am the matter of my book — it is not reasonable that you spend your leisure on so frivolous and vain a subject."]
+    [:cite.montaigne__cite "Michel de Montaigne · Essais"]]])
 
 (defn- tile-card [{:keys [title summary url markdown]} index]
   (let [html (md/render markdown)]
@@ -96,11 +107,9 @@
 
 (defn home [{:keys [posts]}]
   [:div
-   [hero]
+   [:header.hero
+    [montaigne-epigraph]]
    [:section.section
-    [:div.section__head
-     [:h2 "Latest"]
-     [:p "Notes and writing, newest first."]]
     (if (seq posts)
       [:div.post-list
        (for [[i post] (map-indexed vector posts)]
