@@ -40,13 +40,6 @@
      "Thus, reader, I myself am the matter of my book — it is not reasonable that you spend your leisure on so frivolous and vain a subject."]
     [:cite.montaigne__cite "Michel de Montaigne · Essais"]]])
 
-(defn- hero []
-  [:header.hero
-   [montaigne-epigraph]
-   [:h1.hero__title "daplay"]
-   [:p.hero__lede
-    "A personal board of useful links — each tile is Markdown, rendered in ClojureScript."]])
-
 (defn- tile-card [{:keys [title summary url markdown]} index]
   (let [html (md/render markdown)]
     [:article.tile
@@ -59,14 +52,11 @@
        [:div.tile__body.prose
         {:dangerouslySetInnerHTML {:__html html}}])]))
 
-(defn home [{:keys [site tiles]}]
+(defn home [{:keys [tiles]}]
   [:div
-   [hero]
+   [:header.hero
+    [montaigne-epigraph]]
    [:section.section
-    [:div.section__head
-     [:h2 "Tiles"]
-     [:p (or (:description site)
-             "Resource lists drawn from Markdown files.")]]
     [:div.tile-grid
      (for [[i tile] (map-indexed vector tiles)]
        ^{:key (:url tile)}
