@@ -8,7 +8,8 @@ layout: null
     "url": {{ site.url | jsonify }},
     "baseurl": {{ site.baseurl | jsonify }},
     "email": {{ site.email | jsonify }},
-    "github_username": {{ site.github_username | jsonify }}
+    "github_username": {{ site.github_username | jsonify }},
+    "github_repo": {{ site.github_repo | jsonify }}
   },
   "tiles": [
     {%- assign sorted_tiles = site.tiles | sort: "order" -%}
