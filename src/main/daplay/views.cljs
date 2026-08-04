@@ -67,17 +67,40 @@
         " -.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0"
         " -6.627-5.373-12-12-12")])
 
-(defn- social-link [{:keys [href label icon]}]
-  [:a.footer__social
-   {:href href
-    :rel "noopener noreferrer"
-    :target "_blank"
-    :aria-label label}
+(defn- baezdaniel-icon
+  "Brand mark from baezdaniel.cl — Golden Gate under a Pacific sun."
+  []
+  [:span.footer__mark {:aria-hidden "true"}
+   [:img.footer__mark-img
+    {:src "/assets/img/baezdaniel-mark.png"
+     :srcSet (str "/assets/img/baezdaniel-mark.png 64w, "
+                  "/assets/img/baezdaniel-mark@2x.png 96w")
+     :sizes "22px"
+     :alt ""
+     :width 22
+     :height 22
+     :decoding "async"}]])
+
+(defn- social-link [{:keys [href label icon class title]}]
+  [:a
+   (cond-> {:href href
+            :class (cond-> ["footer__social"]
+                     class (conj class))
+            :rel "noopener noreferrer"
+            :target "_blank"
+            :aria-label label}
+     title (assoc :title title))
    icon
    [:span.footer__sr-only label]])
 
 (defn- footer-socials [site]
   (let [links (cond-> []
+                (:professional_url site)
+                (conj {:href (:professional_url site)
+                       :label "baezdaniel.cl"
+                       :title "Daniel Báez · baezdaniel.cl"
+                       :class "footer__social--site"
+                       :icon [baezdaniel-icon]})
                 (:linkedin_username site)
                 (conj {:href (str "https://linkedin.com/in/" (:linkedin_username site))
                        :label "LinkedIn"
