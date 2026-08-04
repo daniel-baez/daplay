@@ -46,7 +46,7 @@ layout: null
   "pages": [
     {%- assign first_page = true -%}
     {%- for page in site.pages -%}
-    {%- if page.layout == "app" and page.title and page.url != "/" and page.url != "/tiles/" and page.url != "/404.html" -%}
+    {%- if page.layout == "app" and page.title and page.url != "/" and page.url != "/resources/" and page.url != "/404.html" -%}
     {%- unless first_page -%},{%- endunless -%}
     {
       "title": {{ page.title | jsonify }},

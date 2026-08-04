@@ -14,7 +14,7 @@ plugins:
 collections:
   tiles:
     output: true
-    permalink: /tiles/:name/
+    permalink: /resources/:name/
 
 defaults:
   - scope:
