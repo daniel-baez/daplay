@@ -1,5 +1,6 @@
 (ns daplay.views
-  (:require [daplay.markdown :as md]))
+  (:require [clojure.string :as str]
+            [daplay.markdown :as md]))
 
 (defn- format-date [iso]
   (when iso
@@ -48,9 +49,13 @@
   [:nav.nav {:aria-label "Primary"}
    [brand-mark]
    [:div.nav__links
+    [:a {:href "/tiles/"
+         :class (when (str/starts-with? (or route "") "/tiles/")
+                  "is-active")}
+     "Tiles"]
     [:a {:href "/"
          :class (when (= route "/") "is-active")}
-     "Home"]
+     "Blog"]
     [:a {:href "/about/"
          :class (when (= route "/about/") "is-active")}
      "About"]]])
@@ -59,7 +64,7 @@
   [:header.hero
    [:h1.hero__title "daplay"]
    [:p.hero__lede
-    "A personal board of useful links and notes."]])
+    "A personal blog — notes and writing, with a side of useful link boards."]])
 
 (defn- tile-card [{:keys [title summary url markdown]} index]
   (let [html (md/render markdown)]
@@ -73,14 +78,43 @@
        [:div.tile__body.prose
         {:dangerouslySetInnerHTML {:__html html}}])]))
 
-(defn home [{:keys [site tiles]}]
+(defn- post-item [{:keys [title url date excerpt]} index]
+  [:article.post-item
+   {:style {"--i" index}}
+   [:a.post-item__link {:href url}
+    [:time.post-item__date (format-date date)]
+    [:h2.post-item__title title]
+    (when (seq excerpt)
+      [:p.post-item__excerpt excerpt])]])
+
+(defn- empty-posts []
+  [:div.empty
+   [:p.empty__title "No posts yet"]
+   [:p.empty__body
+    "New notes will show up here first. Until then, the tiles have curated links."]
+   [:a.empty__cta {:href "/tiles/"} "Browse tiles"]])
+
+(defn home [{:keys [posts]}]
   [:div
    [hero]
    [:section.section
     [:div.section__head
-     [:h2 "Tiles"]
-     [:p (or (:description site)
-             "Curated lists of useful links.")]]
+     [:h2 "Latest"]
+     [:p "Notes and writing, newest first."]]
+    (if (seq posts)
+      [:div.post-list
+       (for [[i post] (map-indexed vector posts)]
+         ^{:key (:url post)}
+         [post-item post i])]
+      [empty-posts])]])
+
+(defn tiles-board [{:keys [tiles]}]
+  [:div
+   [:header.page-hero
+    [:h1.page-hero__title "Tiles"]
+    [:p.page-hero__lede
+     "Curated lists of useful links I keep coming back to."]]
+   [:section.section
     [:div.tile-grid
      (for [[i tile] (map-indexed vector tiles)]
        ^{:key (:url tile)}
@@ -89,7 +123,7 @@
 (defn tile-page [{:keys [tile]}]
   (let [html (md/render (:markdown tile))]
     [:article.post
-     [:a.post__back {:href "/"} "← Home"]
+     [:a.post__back {:href "/tiles/"} "← Tiles"]
      [:header.post__header
       [:h1.post__title (:title tile)]
       (when (seq (:summary tile))
@@ -100,7 +134,7 @@
 (defn post-page [{:keys [post]}]
   (let [html (md/render (:markdown post))]
     [:article.post
-     [:a.post__back {:href "/"} "← Home"]
+     [:a.post__back {:href "/"} "← Blog"]
      [:header.post__header
       [:time.post__date (format-date (:date post))]
       [:h1.post__title (:title post)]]
@@ -110,7 +144,7 @@
 (defn page-view [{:keys [page]}]
   (let [html (md/render (:markdown page))]
     [:article.post
-     [:a.post__back {:href "/"} "← Home"]
+     [:a.post__back {:href "/"} "← Blog"]
      [:header.post__header
       [:h1.post__title (:title page)]]
      [:div.prose
@@ -128,7 +162,7 @@
   [:div.status
    [:h1 "404"]
    [:p "Nothing at this path."]
-   [:a {:href "/"} "Back home"]])
+   [:a {:href "/"} "Back to blog"]])
 
 (defn shell [{:keys [route site posts pages tiles status error]}]
   (let [post (some #(when (= (:url %) route) %) posts)
@@ -143,11 +177,12 @@
         :loading [loading]
         :error   [error-view error]
         (cond
-          (= route "/") [home {:site site :tiles tiles}]
-          tile          [tile-page {:tile tile}]
-          post          [post-page {:post post}]
-          page          [page-view {:page page}]
-          :else         [not-found]))]
+          (= route "/")       [home {:posts posts}]
+          (= route "/tiles/") [tiles-board {:tiles tiles}]
+          tile                [tile-page {:tile tile}]
+          post                [post-page {:post post}]
+          page                [page-view {:page page}]
+          :else               [not-found]))]
      [:footer.footer
       [:span (:title site)]
       (when-let [gh (:github_username site)]
