@@ -115,10 +115,10 @@
   [:nav.nav {:aria-label "Primary"}
    [brand-mark]
    [:div.nav__links
-    [:a {:href "/tiles/"
-         :class (when (str/starts-with? (or route "") "/tiles/")
+    [:a {:href "/resources/"
+         :class (when (str/starts-with? (or route "") "/resources/")
                   "is-active")}
-     "Tiles"]
+     "Resources"]
     [:a {:href "/"
          :class (when (= route "/") "is-active")}
      "Blog"]
@@ -168,8 +168,8 @@
   [:div.empty
    [:p.empty__title "No posts yet"]
    [:p.empty__body
-    "New notes will show up here first. Until then, the tiles have curated links."]
-   [:a.empty__cta {:href "/tiles/"} "Browse tiles"]])
+    "New notes will show up here first. Until then, the resources have curated links."]
+   [:a.empty__cta {:href "/resources/"} "Browse resources"]])
 
 (defn home [{:keys [posts]}]
   [:div
@@ -183,10 +183,10 @@
          [post-item post i])]
       [empty-posts])]])
 
-(defn tiles-board [{:keys [tiles]}]
+(defn resources-board [{:keys [tiles]}]
   [:div
    [:header.page-hero
-    [:h1.page-hero__title "Tiles"]
+    [:h1.page-hero__title "Resources"]
     [:p.page-hero__lede
      "Curated lists of useful links I keep coming back to."]]
    [:section.section
@@ -198,7 +198,7 @@
 (defn tile-page [{:keys [tile]}]
   (let [html (md/render (:markdown tile))]
     [:article.post
-     [:a.post__back {:href "/tiles/"} "← Tiles"]
+     [:a.post__back {:href "/resources/"} "← Resources"]
      [:header.post__header
       [:h1.post__title (:title tile)]
       (when (seq (:summary tile))
@@ -252,9 +252,9 @@
         :loading [loading]
         :error   [error-view error]
         (cond
-          (= route "/")       [home {:posts posts}]
-          (= route "/tiles/") [tiles-board {:tiles tiles}]
-          tile                [tile-page {:tile tile}]
+          (= route "/")          [home {:posts posts}]
+          (= route "/resources/") [resources-board {:tiles tiles}]
+          tile                   [tile-page {:tile tile}]
           post                [post-page {:post post}]
           page                [page-view {:page page}]
           :else               [not-found]))]
