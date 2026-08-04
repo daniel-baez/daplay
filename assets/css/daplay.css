@@ -1,3 +1,15 @@
+@property --mx {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 50%;
+}
+
+@property --my {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 20%;
+}
+
 :root {
   --ink: #10231f;
   --ink-soft: #243f38;
@@ -70,6 +82,7 @@ a {
 
 .forkme {
   --forkme-size: 9.5rem;
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
   position: fixed;
   top: 0;
   right: 0;
@@ -80,7 +93,7 @@ a {
   text-decoration: none;
   color: var(--foam);
   pointer-events: none;
-  animation: forkme-in 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: forkme-in 900ms var(--ease-premium) both;
   animation-delay: 180ms;
 }
 
@@ -94,7 +107,8 @@ a {
   background: radial-gradient(circle, rgba(200, 245, 49, 0.35), transparent 68%);
   filter: blur(8px);
   opacity: 0.55;
-  transition: opacity 280ms ease, transform 280ms ease;
+  transition: opacity 320ms var(--ease-premium), transform 320ms var(--ease-premium);
+  animation: forkme-breathe 6s ease-in-out infinite;
 }
 
 .forkme__band {
@@ -108,22 +122,26 @@ a {
   gap: 0.45rem;
   width: 13.5rem;
   padding: 0.55rem 1.25rem;
+  border-radius: 0.3rem;
   transform: rotate(45deg);
   background:
     linear-gradient(120deg, rgba(200, 245, 49, 0.18), transparent 42%),
     linear-gradient(165deg, var(--sea) 0%, var(--sea-deep) 72%, #06261f 100%);
   border: 1px solid rgba(243, 247, 244, 0.18);
   box-shadow:
+    0 2px 6px rgba(13, 61, 50, 0.22),
     0 10px 28px rgba(13, 61, 50, 0.28),
+    0 26px 48px rgba(13, 61, 50, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   font-family: var(--font-display);
   transition:
-    transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    box-shadow 280ms ease,
-    filter 280ms ease;
+    transform 320ms var(--ease-premium),
+    box-shadow 320ms var(--ease-premium),
+    filter 320ms var(--ease-premium);
   overflow: hidden;
+  will-change: transform;
 }
 
 .forkme__band::before {
@@ -137,7 +155,7 @@ a {
     transparent 64%
   );
   transform: translateX(-120%);
-  animation: forkme-shine 4.8s ease-in-out infinite;
+  animation: forkme-shine 5.4s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
 
 .forkme__band::after {
@@ -148,6 +166,22 @@ a {
   pointer-events: none;
 }
 
+.forkme__glare {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0.08) 32%,
+    transparent 62%
+  );
+  opacity: 0;
+  transition: --mx 150ms var(--ease-premium), --my 150ms var(--ease-premium),
+    opacity 220ms ease;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+
 .forkme__icon {
   position: relative;
   z-index: 1;
@@ -156,7 +190,7 @@ a {
   flex-shrink: 0;
   color: var(--spark);
   filter: drop-shadow(0 0 6px rgba(200, 245, 49, 0.35));
-  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 320ms var(--ease-premium);
 }
 
 .forkme__copy {
@@ -186,16 +220,33 @@ a {
 .forkme:focus-visible .forkme__band {
   transform: rotate(45deg) translateY(-2px) scale(1.03);
   box-shadow:
+    0 3px 8px rgba(13, 61, 50, 0.26),
     0 14px 34px rgba(13, 61, 50, 0.36),
+    0 32px 58px rgba(13, 61, 50, 0.2),
     0 0 0 1px rgba(200, 245, 49, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.24);
   filter: saturate(1.08);
+}
+
+.forkme:active .forkme__band {
+  transform: rotate(45deg) translateY(-1px) scale(0.97);
+  box-shadow:
+    0 1px 3px rgba(13, 61, 50, 0.24),
+    0 6px 14px rgba(13, 61, 50, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition-duration: 120ms;
 }
 
 .forkme:hover .forkme__glow,
 .forkme:focus-visible .forkme__glow {
   opacity: 0.9;
   transform: scale(1.12);
+  animation-play-state: paused;
+}
+
+.forkme:hover .forkme__glare,
+.forkme:focus-visible .forkme__glare {
+  opacity: 0.9;
 }
 
 .forkme:hover .forkme__icon,
@@ -231,6 +282,18 @@ a {
   75%,
   100% {
     transform: translateX(120%);
+  }
+}
+
+@keyframes forkme-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.68;
+    transform: scale(1.06);
   }
 }
 
