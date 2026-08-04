@@ -1,0 +1,44 @@
+---
+layout: null
+---
+{
+  "site": {
+    "title": {{ site.title | jsonify }},
+    "description": {{ site.description | jsonify }},
+    "url": {{ site.url | jsonify }},
+    "baseurl": {{ site.baseurl | jsonify }},
+    "email": {{ site.email | jsonify }},
+    "github_username": {{ site.github_username | jsonify }}
+  },
+  "posts": [
+    {%- assign first_post = true -%}
+    {%- for post in site.posts -%}
+    {%- unless first_post -%},{%- endunless -%}
+    {
+      "id": {{ post.id | jsonify }},
+      "title": {{ post.title | jsonify }},
+      "url": {{ post.url | jsonify }},
+      "date": {{ post.date | date_to_xmlschema | jsonify }},
+      "categories": {{ post.categories | jsonify }},
+      "tags": {{ post.tags | jsonify }},
+      "excerpt": {{ post.excerpt | strip_html | strip | jsonify }},
+      "markdown": {{ post.raw_markdown | default: "" | jsonify }}
+    }
+    {%- assign first_post = false -%}
+    {%- endfor -%}
+  ],
+  "pages": [
+    {%- assign first_page = true -%}
+    {%- for page in site.pages -%}
+    {%- if page.layout == "app" and page.title and page.url != "/" and page.url != "/404.html" -%}
+    {%- unless first_page -%},{%- endunless -%}
+    {
+      "title": {{ page.title | jsonify }},
+      "url": {{ page.url | jsonify }},
+      "markdown": {{ page.raw_markdown | default: "" | jsonify }}
+    }
+    {%- assign first_page = false -%}
+    {%- endif -%}
+    {%- endfor -%}
+  ]
+}

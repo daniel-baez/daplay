@@ -1,5 +1,5 @@
 {
-  description = "daplay - Jekyll site dev environment";
+  description = "daplay - Jekyll + ClojureScript (shadow-cljs) site";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -16,18 +16,53 @@
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
       pkgsFor = system: import nixpkgs { inherit system; };
 
-      # `serve` installs gems (if needed) and runs the Jekyll dev server.
+      # Install gems + npm deps as needed, compile CLJS, run Jekyll.
       serveFor = pkgs: pkgs.writeShellApplication {
         name = "serve";
-        runtimeInputs = [ pkgs.ruby pkgs.bundler pkgs.gcc pkgs.gnumake ];
+        runtimeInputs = [
+          pkgs.ruby
+          pkgs.bundler
+          pkgs.gcc
+          pkgs.gnumake
+          pkgs.nodejs
+          pkgs.jdk21
+        ];
         text = ''
-          # Keep gems local to the repo so nothing is installed globally.
           export BUNDLE_PATH="''${BUNDLE_PATH:-vendor/bundle}"
+
           if ! bundle check >/dev/null 2>&1; then
             echo "Installing gems into $BUNDLE_PATH ..."
             bundle install
           fi
+
+          if [[ ! -d node_modules ]]; then
+            echo "Installing npm packages ..."
+            npm install
+          fi
+
+          echo "Compiling ClojureScript (shadow-cljs) ..."
+          npx shadow-cljs compile app
+
           exec bundle exec jekyll serve --host 0.0.0.0 "$@"
+        '';
+      };
+
+      buildFor = pkgs: pkgs.writeShellApplication {
+        name = "build-site";
+        runtimeInputs = [
+          pkgs.ruby
+          pkgs.bundler
+          pkgs.gcc
+          pkgs.gnumake
+          pkgs.nodejs
+          pkgs.jdk21
+        ];
+        text = ''
+          export BUNDLE_PATH="''${BUNDLE_PATH:-vendor/bundle}"
+          bundle check >/dev/null 2>&1 || bundle install
+          [[ -d node_modules ]] || npm install
+          npx shadow-cljs release app
+          bundle exec jekyll build "$@"
         '';
       };
     in
@@ -36,6 +71,7 @@
         let
           pkgs = pkgsFor system;
           serve = serveFor pkgs;
+          build-site = buildFor pkgs;
         in
         {
           default = pkgs.mkShell {
@@ -45,21 +81,23 @@
               pkgs.gcc
               pkgs.gnumake
               pkgs.git
+              pkgs.nodejs
+              pkgs.jdk21
               serve
+              build-site
             ];
 
-            # Gems live in ./vendor/bundle (gitignored) instead of globally.
             BUNDLE_PATH = "vendor/bundle";
 
             shellHook = ''
-              echo "daplay Jekyll dev shell ready."
-              echo "  serve [jekyll args]   # bundle install (if needed) + jekyll serve on 0.0.0.0:4000"
-              echo "  e.g. serve --livereload"
+              echo "daplay Jekyll + ClojureScript shell ready."
+              echo "  serve [jekyll args]   # npm/bundle if needed + cljs compile + jekyll serve"
+              echo "  build-site           # shadow-cljs release + jekyll build"
+              echo "  npm run cljs:watch   # iterative CLJS rebuild (separate terminal)"
             '';
           };
         });
 
-      # `nix run` starts the Jekyll dev server (installs gems on first run).
       apps = forAllSystems (system:
         let
           pkgs = pkgsFor system;

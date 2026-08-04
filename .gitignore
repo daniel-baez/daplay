@@ -8,6 +8,13 @@ _site
 vendor
 vendor/bundle
 
+# ClojureScript / Node
+node_modules/
+.shadow-cljs/
+.cljs_node_repl/
+assets/js/
+package-lock.json.bak
+
 # direnv / nix-direnv cache
 .direnv/
 .direnv
