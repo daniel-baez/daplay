@@ -4,9 +4,7 @@
 (defn- format-date [iso]
   (when iso
     (let [d (js/Date. iso)]
-      (.toLocaleDateString
-       "en-GB"
-       d
+      (.toLocaleDateString d "en-GB"
        #js {:year "numeric" :month "short" :day "numeric"}))))
 
 (defn- brand-mark []
