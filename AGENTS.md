@@ -2,20 +2,30 @@
 
 ## Cursor Cloud specific instructions
 
-This repository is a **Jekyll site** (minima theme) deployed via GitHub Pages
-(see `CNAME` → `daplay.cl`). It was scaffolded with `jekyll new`.
+This repository is a **Jekyll + ClojureScript** site deployed via GitHub Pages
+(see `CNAME` → `daplay.cl`).
 
-- **Key files**: `_config.yml` (site config), `index.markdown`, `about.markdown`, `404.html`, `_posts/` (blog posts), `Gemfile` / `Gemfile.lock` (Ruby deps: `jekyll` 4.x + `minima` + `jekyll-feed`).
-- **Build output**: `_site/` (gitignored). Caches `.jekyll-cache/`, `.sass-cache/` and gems in `vendor/` are gitignored too.
-- **Gems are installed locally** into `vendor/bundle` (via `BUNDLE_PATH`), never globally.
+- **Content (Jekyll)**: Markdown in `_posts/` and pages (`about.markdown`, …).
+  Jekyll stashes raw Markdown (`_plugins/stash_raw_markdown.rb`) and exports it
+  as `/assets/data/site.json`. Liquid/minima are not the UI layer.
+- **UI (ClojureScript)**: `src/main/daplay/` compiled by **shadow-cljs** into
+  `assets/js/`. Reagent mounts on `#app` (`_layouts/app.html`) and renders from
+  the JSON data (markdown-it in the browser).
+- **Key files**: `_config.yml`, `_layouts/app.html`, `assets/data/site.json`,
+  `assets/css/daplay.css`, `shadow-cljs.edn`, `package.json`, `Gemfile`.
+- **Build output**: `_site/` (gitignored). Also gitignored: `node_modules/`,
+  `.shadow-cljs/`, `assets/js/`, `vendor/bundle`, Jekyll caches.
 
 ### Running the site
 
-The `flake.nix` dev shell provides `ruby`, `bundler`, a C toolchain, and a `serve` helper.
+The `flake.nix` dev shell provides Ruby, bundler, Node, JDK 21, and helpers.
 
-- `nix develop` → then `serve` (runs `bundle install` if needed, then `bundle exec jekyll serve --host 0.0.0.0`, on port `4000`). Pass Jekyll args through, e.g. `serve --livereload` or `serve --port 4001`.
-- `nix run` (or `nix run .`) starts the same Jekyll server without entering the shell.
-- Without the helper: `bundle install` then `bundle exec jekyll serve` from the repo root, then open `http://localhost:4000/`.
+- `nix develop` → then `serve` (bundle/npm if needed, `shadow-cljs compile app`,
+  then `jekyll serve --host 0.0.0.0` on port `4000`).
+- `build-site` → `shadow-cljs release app` + `jekyll build`.
+- For iterative CLJS work: `npm run cljs:watch` in one terminal, `serve` (or
+  jekyll serve) in another.
+- Without nix: `npm install && npx shadow-cljs compile app && bundle exec jekyll serve`.
 
 ### Nix + direnv workflow
 
@@ -25,7 +35,7 @@ The `flake.nix` dev shell provides `ruby`, `bundler`, a C toolchain, and a `serv
 
 ### Notes
 
-- First `serve`/`nix run` compiles/downloads native gems (e.g. `sass-embedded`, `google-protobuf`) into `vendor/bundle`; the C toolchain in the flake covers this. Subsequent runs are fast.
-- The minima theme emits harmless Sass `lighten()` deprecation warnings on build — safe to ignore.
-- `_config.yml` is **not** hot-reloaded by `jekyll serve`; restart the server after editing it.
-- **Deployment note**: the scaffold pins Jekyll 4.x. GitHub Pages' classic (automatic) build uses Jekyll 3.x, so to deploy this on Pages use a GitHub Actions Pages workflow (or switch the `Gemfile` to the `github-pages` gem). No CI workflow is committed yet.
+- First gem/npm/cljs install is slow (native gems + Maven deps for shadow-cljs).
+- `_config.yml` is **not** hot-reloaded by `jekyll serve`; restart after editing it.
+- Deployment: `.github/workflows/pages.yml` builds CLJS + Jekyll 4 and deploys
+  to GitHub Pages (classic Pages Jekyll 3 is not used).
