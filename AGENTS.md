@@ -23,7 +23,8 @@ The `flake.nix` dev shell provides Ruby, bundler, Node, JDK 21, and helpers.
 
 - `nix develop` → then `serve` (bundle/npm if needed, `shadow-cljs compile app`,
  then `jekyll serve --host 0.0.0.0` on port `4000`).
-- `build-site` → `shadow-cljs release app` + `jekyll build`.
+- `build-site` / `npm run cljs:release` → Closure `:advanced` production JS
+ (hashed `main.<hash>.js` via `:module-hash-names`) + `jekyll build`.
 - `test-site` / `npm test` → ClojureScript node tests (`src/test/`, shadow-cljs
  `:test` build).
 - For iterative CLJS work: `npm run cljs:watch` in one terminal, `serve` (or

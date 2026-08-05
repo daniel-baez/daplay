@@ -6,7 +6,24 @@
    :output-dir "assets/js"
    :asset-path "/assets/js"
    :modules    {:main {:init-fn daplay.core/init!}}
-   :devtools   {:after-load daplay.core/mount-root!}}
+   :build-options {:manifest-name "manifest.json"}
+   :compiler-options {:infer-externs :auto}
+   :devtools   {:after-load daplay.core/mount-root!}
+
+   ;; Fast iterative builds — unoptimized, stable filenames for jekyll serve.
+   :dev
+   {:compiler-options {:output-feature-set :es-next}}
+
+   ;; Production: Closure :advanced, hashed filename for cache busting.
+   :release
+   {:module-hash-names 8
+    :compiler-options
+    {:optimizations      :advanced
+     :pretty-print       false
+     :elide-asserts      true
+     :source-map         false
+     :fn-invoke-direct   true
+     :output-feature-set :es2020}}}
 
   :test
   {:target    :node-test

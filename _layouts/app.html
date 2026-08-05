@@ -27,6 +27,14 @@
         dataUrl: {{ '/assets/data/site.json' | relative_url | jsonify }}
       };
     </script>
-    <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
+    {%- assign cljs_main = "main.js" -%}
+    {%- if site.data.cljs -%}
+      {%- for mod in site.data.cljs -%}
+        {%- if mod["module-id"] == "main" -%}
+          {%- assign cljs_main = mod["output-name"] -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+    <script src="{{ '/assets/js/' | append: cljs_main | relative_url }}" defer></script>
   </body>
 </html>
