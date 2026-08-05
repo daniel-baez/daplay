@@ -4,7 +4,7 @@
   "description": "daplay — Markdown in Jekyll. Interface in ClojureScript.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fbfcfe",
+  "background_color": "#0e1116",
   "theme_color": "#1a326e",
   "icons": [
     {
