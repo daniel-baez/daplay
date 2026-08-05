@@ -1,3 +1,15 @@
+@property --mx {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 50%;
+}
+
+@property --my {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 20%;
+}
+
 :root {
   /* Black / white principals + prince blue, sky, golden accent */
   --ink: #0e1116;
@@ -73,6 +85,7 @@ a {
 
 .forkme {
   --forkme-size: 9.5rem;
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
   position: fixed;
   top: 0;
   right: 0;
@@ -83,7 +96,7 @@ a {
   text-decoration: none;
   color: var(--foam);
   pointer-events: none;
-  animation: forkme-in 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: forkme-in 900ms var(--ease-premium) both;
   animation-delay: 180ms;
 }
 
@@ -98,6 +111,7 @@ a {
   gap: 0.45rem;
   width: 13.5rem;
   padding: 0.55rem 1.25rem;
+  border-radius: 0.3rem;
   transform: rotate(45deg);
   background:
     linear-gradient(120deg, rgba(200, 245, 49, 0.18), transparent 42%),
@@ -108,10 +122,11 @@ a {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
   font-family: var(--font-display);
   transition:
-    transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    box-shadow 280ms ease,
-    filter 280ms ease;
+    transform 320ms var(--ease-premium),
+    box-shadow 320ms var(--ease-premium),
+    filter 320ms var(--ease-premium);
   overflow: hidden;
+  will-change: transform;
 }
 
 .forkme__band::before {
@@ -125,7 +140,7 @@ a {
     transparent 64%
   );
   transform: translateX(-120%);
-  animation: forkme-shine 4.8s ease-in-out infinite;
+  animation: forkme-shine 5.4s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
 
 .forkme__band::after {
@@ -136,6 +151,22 @@ a {
   pointer-events: none;
 }
 
+.forkme__glare {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0.08) 32%,
+    transparent 62%
+  );
+  opacity: 0;
+  transition: --mx 150ms var(--ease-premium), --my 150ms var(--ease-premium),
+    opacity 220ms ease;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+
 .forkme__icon {
   position: relative;
   z-index: 1;
@@ -144,7 +175,7 @@ a {
   flex-shrink: 0;
   color: var(--spark);
   filter: drop-shadow(0 0 6px rgba(200, 245, 49, 0.35));
-  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 320ms var(--ease-premium);
 }
 
 .forkme__copy {
@@ -177,6 +208,18 @@ a {
     0 0 0 1px rgba(200, 245, 49, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.24);
   filter: saturate(1.08);
+}
+
+.forkme:active .forkme__band {
+  transform: rotate(45deg) translateY(-1px) scale(0.97);
+  /* Inset-only, matching the no-outer-shadow rule above. */
+  box-shadow: inset 0 2px 5px rgba(6, 38, 31, 0.35);
+  transition-duration: 120ms;
+}
+
+.forkme:hover .forkme__glare,
+.forkme:focus-visible .forkme__glare {
+  opacity: 0.9;
 }
 
 .forkme:hover .forkme__icon,
