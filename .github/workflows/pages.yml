@@ -15,8 +15,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  test:
+    name: ClojureScript tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('shadow-cljs.edn', 'package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install JS deps
+        run: npm ci
+
+      - name: Run ClojureScript tests
+        run: npm test
+
+  build:
+    name: Build site
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -25,10 +58,17 @@ jobs:
           ruby-version: "3.3"
           bundler-cache: true
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "21"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('shadow-cljs.edn', 'package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
 
       - uses: actions/setup-node@v4
         with:
@@ -43,14 +83,38 @@ jobs:
       - name: Build Jekyll
         env:
           JEKYLL_ENV: production
+        run: bundle exec jekyll build --destination _site
+
+      - name: Verify build output
         run: |
-          bundle exec jekyll build --destination _site
+          test -f _site/index.html
+          test -f _site/assets/data/site.json
+          test -f _site/assets/js/main.js
+          python3 - <<'PY'
+          import json, sys
+          data = json.load(open("_site/assets/data/site.json"))
+          assert isinstance(data, dict), "site.json must be an object"
+          assert "site" in data or "tiles" in data or "posts" in data, \
+              "site.json missing expected keys"
+          print("site.json ok:", ", ".join(sorted(data.keys())))
+          PY
 
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
+      - name: Summary
+        run: |
+          {
+            echo "### Build ready for Pages"
+            echo
+            echo "- Artifact: \`_site\`"
+            echo "- CLJS: \`assets/js/main.js\`"
+            echo "- Data: \`assets/data/site.json\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   deploy:
+    name: Deploy
     needs: build
     runs-on: ubuntu-latest
     environment:
@@ -59,3 +123,11 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Summary
+        run: |
+          {
+            echo "### Deployed"
+            echo
+            echo "- URL: ${{ steps.deployment.outputs.page_url }}"
+          } >> "$GITHUB_STEP_SUMMARY"

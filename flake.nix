@@ -65,6 +65,18 @@
           bundle exec jekyll build "$@"
         '';
       };
+
+      testFor = pkgs: pkgs.writeShellApplication {
+        name = "test-site";
+        runtimeInputs = [
+          pkgs.nodejs
+          pkgs.jdk21
+        ];
+        text = ''
+          [[ -d node_modules ]] || npm install
+          npm test
+        '';
+      };
     in
     {
       devShells = forAllSystems (system:
@@ -72,6 +84,7 @@
           pkgs = pkgsFor system;
           serve = serveFor pkgs;
           build-site = buildFor pkgs;
+          test-site = testFor pkgs;
         in
         {
           default = pkgs.mkShell {
@@ -85,6 +98,7 @@
               pkgs.jdk21
               serve
               build-site
+              test-site
             ];
 
             BUNDLE_PATH = "vendor/bundle";
@@ -93,6 +107,7 @@
               echo "daplay Jekyll + ClojureScript shell ready."
               echo "  serve [jekyll args]   # npm/bundle if needed + cljs compile + jekyll serve"
               echo "  build-site           # shadow-cljs release + jekyll build"
+              echo "  test-site            # shadow-cljs node tests"
               echo "  npm run cljs:watch   # iterative CLJS rebuild (separate terminal)"
             '';
           };

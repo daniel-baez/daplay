@@ -13,6 +13,7 @@ node_modules/
 .shadow-cljs/
 .cljs_node_repl/
 assets/js/
+out/
 package-lock.json.bak
 
 # direnv / nix-direnv cache
