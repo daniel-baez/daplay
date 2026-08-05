@@ -2,10 +2,11 @@
   "name": "daplay",
   "private": true,
   "scripts": {
+    "css:build": "shadow-cljs run daplay.css/write!",
     "cljs:watch": "shadow-cljs watch app",
-    "cljs:release": "rm -rf assets/js && shadow-cljs release app",
-    "cljs:compile": "shadow-cljs compile app",
-    "test": "shadow-cljs compile test",
+    "cljs:release": "npm run css:build && rm -rf assets/js && shadow-cljs release app",
+    "cljs:compile": "npm run css:build && shadow-cljs compile app",
+    "test": "npm run css:build && shadow-cljs compile test",
     "test:watch": "shadow-cljs watch test"
   },
   "devDependencies": {

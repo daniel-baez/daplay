@@ -40,8 +40,8 @@
             npm install
           fi
 
-          echo "Compiling ClojureScript (shadow-cljs) ..."
-          npx shadow-cljs compile app
+          echo "Generating CSS (Garden) + compiling ClojureScript ..."
+          npm run cljs:compile
 
           exec bundle exec jekyll serve --host 0.0.0.0 "$@"
         '';
@@ -61,8 +61,7 @@
           export BUNDLE_PATH="''${BUNDLE_PATH:-vendor/bundle}"
           bundle check >/dev/null 2>&1 || bundle install
           [[ -d node_modules ]] || npm install
-          rm -rf assets/js
-          npx shadow-cljs release app
+          npm run cljs:release
           bundle exec jekyll build "$@"
         '';
       };
@@ -106,9 +105,10 @@
 
             shellHook = ''
               echo "daplay Jekyll + ClojureScript shell ready."
-              echo "  serve [jekyll args]   # npm/bundle if needed + cljs compile + jekyll serve"
-              echo "  build-site           # shadow-cljs release + jekyll build"
+              echo "  serve [jekyll args]   # npm/bundle if needed + css/cljs compile + jekyll serve"
+              echo "  build-site           # Garden CSS + shadow-cljs release + jekyll build"
               echo "  test-site            # shadow-cljs node tests"
+              echo "  npm run css:build    # regenerate assets/css/daplay.css from Garden"
               echo "  npm run cljs:watch   # iterative CLJS rebuild (separate terminal)"
             '';
           };

@@ -1,0 +1,824 @@
+(ns daplay.styles
+  "Site stylesheet expressed with Garden.
+  Source of truth for assets/css/daplay.css — edit here, then run npm run css:build."
+  (:require [garden.core :as garden]
+            [garden.stylesheet :refer [at-keyframes at-media]]))
+
+(def ^:private at-property
+  "@property --mx {
+  syntax: \"<percentage>\";
+  inherits: true;
+  initial-value: 50%;
+}
+
+@property --my {
+  syntax: \"<percentage>\";
+  inherits: true;
+  initial-value: 20%;
+}")
+
+(def ^:private tokens
+  [[":root"
+    {;; Black / white principals + prince blue, sky, golden accent
+     :--ink "#0e1116"
+     :--ink-soft "#3a4250"
+     :--foam "#fbfcfe"
+     :--mist "#e7eef8"
+     :--sea "#2b4f9b"
+     :--sea-deep "#1a326e"
+     :--sky "#9eb6de"
+     :--spark "#c9a24a"
+     :--spark-ink "#2a2110"
+     :--line "rgba(14, 17, 22, 0.12)"
+     :--shadow "0 24px 60px rgba(26, 50, 110, 0.12)"
+     :--font-display "\"Bricolage Grotesque\", Georgia, serif"
+     :--font-body "\"Literata\", Georgia, serif"
+     :--radius "1.25rem"
+     :--max "68rem"}]])
+
+(def ^:private base
+  [["*" "*::before" "*::after"
+    {:box-sizing "border-box"}]
+
+   [:html
+    {:scroll-behavior "smooth"}]
+
+   [:body
+    {:margin 0
+     :min-height "100vh"
+     :color "var(--ink)"
+     :font-family "var(--font-body)"
+     :font-optical-sizing "auto"
+     :background (str
+                  "radial-gradient(1100px 680px at 8% -12%, rgba(158, 182, 222, 0.45), transparent 55%),\n"
+                  "    radial-gradient(900px 560px at 100% 0%, rgba(43, 79, 155, 0.14), transparent 52%),\n"
+                  "    radial-gradient(700px 480px at 70% 110%, rgba(201, 162, 74, 0.12), transparent 50%),\n"
+                  "    linear-gradient(165deg, #f7f9fc 0%, #fbfcfe 46%, #eef2f8 100%)")
+     :line-height 1.6}]
+
+   [:a
+    {:color "inherit"
+     :text-decoration-thickness "1px"
+     :text-underline-offset "0.18em"}]
+
+   [:.app
+    {:position "relative"
+     :isolation "isolate"
+     :min-height "100vh"}]
+
+   [:.app__atmosphere
+    {:pointer-events "none"
+     :position "fixed"
+     :inset 0
+     :z-index -1
+     :background-image (str
+                        "linear-gradient(rgba(14, 17, 22, 0.035) 1px, transparent 1px),\n"
+                        "    linear-gradient(90deg, rgba(14, 17, 22, 0.035) 1px, transparent 1px)")
+     :background-size "48px 48px"
+     :mask-image "radial-gradient(ellipse at center, black 30%, transparent 80%)"
+     :animation "drift 28s linear infinite"}]
+
+   (at-keyframes :drift
+     [:from {:transform "translate3d(0, 0, 0)"}]
+     [:to {:transform "translate3d(-48px, -48px, 0)"}])])
+
+(def ^:private forkme
+  [[:.forkme
+    {:--forkme-size "9.5rem"
+     :--ease-premium "cubic-bezier(0.16, 1, 0.3, 1)"
+     :position "fixed"
+     :top 0
+     :right 0
+     :z-index 40
+     :width "var(--forkme-size)"
+     :height "var(--forkme-size)"
+     :overflow "hidden"
+     :text-decoration "none"
+     :color "var(--foam)"
+     :pointer-events "none"
+     :animation "forkme-in 900ms var(--ease-premium) both"
+     :animation-delay "180ms"}]
+
+   [:.forkme__band
+    {:pointer-events "auto"
+     :position "absolute"
+     :top "2.05rem"
+     :right "-3.55rem"
+     :display "flex"
+     :align-items "center"
+     :justify-content "center"
+     :gap "0.45rem"
+     :width "13.5rem"
+     :padding "0.55rem 1.25rem"
+     :border-radius "0.3rem"
+     :transform "rotate(45deg)"
+     :background (str
+                  "linear-gradient(120deg, rgba(200, 245, 49, 0.18), transparent 42%),\n"
+                  "    linear-gradient(165deg, var(--sea) 0%, var(--sea-deep) 72%, #06261f 100%)")
+     :border "1px solid rgba(243, 247, 244, 0.18)"
+     ;; Soft outer shadows get clipped into a square by .forkme overflow — keep
+     ;; depth as inset-only so the corner cut stays crisp.
+     :box-shadow "inset 0 1px 0 rgba(255, 255, 255, 0.18)"
+     :font-family "var(--font-display)"
+     :transition (str
+                  "transform 320ms var(--ease-premium),\n"
+                  "    box-shadow 320ms var(--ease-premium),\n"
+                  "    filter 320ms var(--ease-premium)")
+     :overflow "hidden"
+     :will-change "transform"}]
+
+   [".forkme__band::before"
+    {:content "\"\""
+     :position "absolute"
+     :inset 0
+     :background (str
+                  "linear-gradient(\n"
+                  "    105deg,\n"
+                  "    transparent 32%,\n"
+                  "    rgba(255, 255, 255, 0.28) 48%,\n"
+                  "    transparent 64%\n"
+                  "  )")
+     :transform "translateX(-120%)"
+     :animation "forkme-shine 5.4s cubic-bezier(0.37, 0, 0.63, 1) infinite"}]
+
+   [".forkme__band::after"
+    {:content "\"\""
+     :position "absolute"
+     :inset 0
+     :background "linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 55%)"
+     :pointer-events "none"}]
+
+   [:.forkme__glare
+    {:position "absolute"
+     :inset 0
+     :background (str
+                  "radial-gradient(\n"
+                  "    circle at var(--mx) var(--my),\n"
+                  "    rgba(255, 255, 255, 0.55),\n"
+                  "    rgba(255, 255, 255, 0.08) 32%,\n"
+                  "    transparent 62%\n"
+                  "  )")
+     :opacity 0
+     :transition (str
+                  "--mx 150ms var(--ease-premium), --my 150ms var(--ease-premium),\n"
+                  "    opacity 220ms ease")
+     :pointer-events "none"
+     :mix-blend-mode "soft-light"}]
+
+   [:.forkme__icon
+    {:position "relative"
+     :z-index 1
+     :width "1.05rem"
+     :height "1.05rem"
+     :flex-shrink 0
+     :color "var(--spark)"
+     :filter "drop-shadow(0 0 6px rgba(200, 245, 49, 0.35))"
+     :transition "transform 320ms var(--ease-premium)"}]
+
+   [:.forkme__copy
+    {:position "relative"
+     :z-index 1
+     :display "grid"
+     :gap "0.05rem"
+     :line-height 1.05}]
+
+   [:.forkme__kicker
+    {:font-size "0.58rem"
+     :font-weight 600
+     :letter-spacing "0.16em"
+     :text-transform "uppercase"
+     :color "rgba(243, 247, 244, 0.72)"}]
+
+   [:.forkme__label
+    {:font-size "0.78rem"
+     :font-weight 700
+     :letter-spacing "-0.02em"
+     :white-space "nowrap"}]
+
+   [".forkme:hover .forkme__band, .forkme:focus-visible .forkme__band"
+    {:transform "rotate(45deg) translateY(-2px) scale(1.03)"
+     :box-shadow (str
+                  "0 0 0 1px rgba(200, 245, 49, 0.22),\n"
+                  "    inset 0 1px 0 rgba(255, 255, 255, 0.24)")
+     :filter "saturate(1.08)"}]
+
+   [".forkme:active .forkme__band"
+    {:transform "rotate(45deg) translateY(-1px) scale(0.97)"
+     ;; Inset-only, matching the no-outer-shadow rule above.
+     :box-shadow "inset 0 2px 5px rgba(6, 38, 31, 0.35)"
+     :transition-duration "120ms"}]
+
+   [".forkme:hover .forkme__glare, .forkme:focus-visible .forkme__glare"
+    {:opacity 0.9}]
+
+   [".forkme:hover .forkme__icon, .forkme:focus-visible .forkme__icon"
+    {:transform "rotate(-12deg) scale(1.08)"}]
+
+   [:.forkme:focus-visible
+    {:outline "none"}]
+
+   [".forkme:focus-visible .forkme__band"
+    {:outline "2px solid var(--spark)"
+     :outline-offset "3px"}]
+
+   (at-keyframes :forkme-in
+     [:from
+      {:opacity 0
+       :transform "translate3d(12px, -12px, 0) scale(0.92)"}]
+     [:to
+      {:opacity 1
+       :transform "translate3d(0, 0, 0) scale(1)"}])
+
+   (at-keyframes :forkme-shine
+     ["0%, 55%"
+      {:transform "translateX(-120%)"}]
+     ["75%, 100%"
+      {:transform "translateX(120%)"}])])
+
+(def ^:private nav
+  [[:.nav
+    {:display "flex"
+     :align-items "center"
+     :justify-content "space-between"
+     :gap "1rem"
+     :max-width "var(--max)"
+     :margin "0 auto"
+     :padding "1.25rem 1.5rem"
+     :padding-right "clamp(1.5rem, 9vw, 6.75rem)"}]
+
+   [:.brand
+    {:display "inline-flex"
+     :align-items "baseline"
+     :gap 0
+     :font-family "var(--font-display)"
+     :font-weight 700
+     :font-size "clamp(1.4rem, 2vw, 1.75rem)"
+     :letter-spacing "-0.04em"
+     :text-decoration "none"
+     :animation "brand-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both"}]
+
+   [:.brand__mark
+    {:color "var(--ink)"}]
+
+   [:.brand__play
+    {:color "var(--sea)"
+     :background "linear-gradient(120deg, var(--sea), var(--sea-deep))"
+     :background-clip "text"
+     "-webkit-background-clip" "text"
+     "-webkit-text-fill-color" "transparent"}]
+
+   [:.nav__links
+    {:display "flex"
+     :gap "1.25rem"
+     :font-family "var(--font-display)"
+     :font-weight 600
+     :font-size "0.95rem"}]
+
+   [".nav__links a"
+    {:text-decoration "none"
+     :opacity 0.7
+     :transition "opacity 180ms ease, transform 180ms ease"}]
+
+   [".nav__links a:hover, .nav__links a.is-active"
+    {:opacity 1}]
+
+   [".nav__links a.is-active"
+    {:box-shadow "inset 0 -2px 0 var(--spark)"}]
+
+   [:.app__main
+    {:max-width "var(--max)"
+     :margin "0 auto"
+     :padding "0 1.5rem 4rem"}]])
+
+(def ^:private hero
+  [[:.hero
+    {:display "flex"
+     :flex-direction "column"
+     :padding "1.75rem 0 1.25rem"
+     :animation "rise 800ms cubic-bezier(0.2, 0.8, 0.2, 1) both"}]
+
+   [:.montaigne
+    {:position "relative"
+     :margin 0
+     :max-width "40rem"
+     :padding "0 0 0 1.35rem"
+     :border "none"
+     :animation "rise 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both"}]
+
+   [".montaigne::before"
+    {:content "\"\""
+     :position "absolute"
+     :left 0
+     :top "0.35rem"
+     :bottom "0.35rem"
+     :width "3px"
+     :border-radius "999px"
+     :background (str
+                  "linear-gradient(\n"
+                  "    180deg,\n"
+                  "    var(--spark) 0%,\n"
+                  "    var(--sea) 55%,\n"
+                  "    var(--sea-deep) 100%\n"
+                  "  )")
+     :transform-origin "top"
+     :animation "montaigne-bar 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both"}]
+
+   [:.montaigne__eyebrow
+    {:margin "0 0 0.85rem"
+     :font-family "var(--font-display)"
+     :font-size "0.78rem"
+     :font-weight 600
+     :letter-spacing "0.14em"
+     :text-transform "uppercase"
+     :color "var(--sea)"
+     :animation "rise 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 80ms both"}]
+
+   [:.montaigne__quote
+    {:position "relative"
+     :margin 0
+     :padding 0
+     :border "none"}]
+
+   [:.montaigne__mark
+    {:position "absolute"
+     :left "-0.08em"
+     :top "-0.42em"
+     :z-index 0
+     :font-family "var(--font-display)"
+     :font-size "clamp(3.8rem, 10vw, 6rem)"
+     :font-weight 700
+     :line-height 1
+     :color "var(--spark)"
+     :opacity 0.72
+     :pointer-events "none"
+     :user-select "none"
+     :animation "montaigne-mark 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 120ms both"}]
+
+   [:.montaigne__fr
+    {:position "relative"
+     :z-index 1
+     :margin 0
+     :padding-left "0.15em"
+     :font-family "var(--font-body)"
+     :font-style "italic"
+     :font-weight 400
+     :font-size "clamp(1.35rem, 3.4vw, 1.85rem)"
+     :line-height 1.35
+     :letter-spacing "-0.015em"
+     :color "var(--ink)"
+     :text-wrap "pretty"
+     :animation "rise 850ms cubic-bezier(0.2, 0.8, 0.2, 1) 160ms both"}]
+
+   [:.montaigne__fr-lead
+    {:color "var(--ink)"}]
+
+   [:.montaigne__fr-rest
+    {:color "var(--ink-soft)"}]
+
+   [:.montaigne__caption
+    {:display "grid"
+     :gap "0.85rem"
+     :margin "1.15rem 0 0"}]
+
+   [:.montaigne__en
+    {:margin 0
+     :max-width "34rem"
+     :font-family "var(--font-body)"
+     :font-size "clamp(0.95rem, 1.8vw, 1.05rem)"
+     :line-height 1.55
+     :color "var(--ink-soft)"
+     :animation "rise 850ms cubic-bezier(0.2, 0.8, 0.2, 1) 280ms both"}]
+
+   [:.montaigne__cite
+    {:font-family "var(--font-display)"
+     :font-style "normal"
+     :font-size "0.82rem"
+     :font-weight 600
+     :letter-spacing "0.04em"
+     :color "var(--sea-deep)"
+     :animation "rise 850ms cubic-bezier(0.2, 0.8, 0.2, 1) 360ms both"}]
+
+   (at-keyframes :montaigne-bar
+     [:from
+      {:opacity 0
+       :transform "scaleY(0)"}]
+     [:to
+      {:opacity 1
+       :transform "scaleY(1)"}])
+
+   (at-keyframes :montaigne-mark
+     [:from
+      {:opacity 0
+       :transform "translate3d(0, 12px, 0) scale(0.92)"}]
+     [:to
+      {:opacity 0.85
+       :transform "translate3d(0, 0, 0) scale(1)"}])
+
+   [:.page-hero
+    {:padding "2rem 0 0.5rem"
+     :animation "rise 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both"}]
+
+   [:.page-hero__title
+    {:margin 0
+     :font-family "var(--font-display)"
+     :font-weight 700
+     :font-size "clamp(2.4rem, 7vw, 3.6rem)"
+     :letter-spacing "-0.05em"
+     :line-height 1}]
+
+   [:.page-hero__lede
+    {:max-width "34rem"
+     :margin "0.9rem 0 0"
+     :font-size "clamp(1.02rem, 2vw, 1.15rem)"
+     :color "var(--ink-soft)"}]])
+
+(def ^:private content
+  [[:.section
+    {:padding "0.5rem 0 3rem"}]
+
+   [:.post-list
+    {:display "grid"
+     :gap 0}]
+
+   [:.post-item
+    {:padding "1.35rem 0 1.5rem"
+     :border-top "1px solid var(--line)"
+     :animation "rise 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both"
+     :animation-delay "calc(var(--i, 0) * 80ms + 120ms)"
+     :transition "transform 220ms ease"}]
+
+   [:.post-item:hover
+    {:transform "translateY(-0.15rem)"}]
+
+   [:.post-item__link
+    {:display "grid"
+     :gap "0.4rem"
+     :text-decoration "none"}]
+
+   [:.post-item__date
+    {:font-family "var(--font-display)"
+     :font-size "0.78rem"
+     :font-weight 600
+     :letter-spacing "0.06em"
+     :text-transform "uppercase"
+     :color "var(--sea)"}]
+
+   [:.post-item__title
+    {:margin 0
+     :font-family "var(--font-display)"
+     :font-size "clamp(1.55rem, 3vw, 2rem)"
+     :letter-spacing "-0.035em"
+     :line-height 1.1}]
+
+   [:.post-item__excerpt
+    {:margin 0
+     :max-width "40rem"
+     :color "var(--ink-soft)"
+     :font-size "0.98rem"}]
+
+   [:.empty
+    {:padding "2rem 0 1rem"
+     :border-top "1px solid var(--line)"
+     :max-width "28rem"
+     :animation "rise 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both"
+     :animation-delay "120ms"}]
+
+   [:.empty__title
+    {:margin 0
+     :font-family "var(--font-display)"
+     :font-size "clamp(1.4rem, 3vw, 1.8rem)"
+     :letter-spacing "-0.03em"}]
+
+   [:.empty__body
+    {:margin "0.65rem 0 0"
+     :color "var(--ink-soft)"}]
+
+   [:.empty__cta
+    {:display "inline-block"
+     :margin-top "1.25rem"
+     :font-family "var(--font-display)"
+     :font-weight 600
+     :text-decoration "none"
+     :color "var(--sea-deep)"
+     :box-shadow "inset 0 -2px 0 var(--spark)"
+     :transition "color 180ms ease"}]
+
+   [:.empty__cta:hover
+    {:color "var(--sea)"}]
+
+   [:.tile-grid
+    {:display "grid"
+     :grid-template-columns "repeat(2, minmax(0, 1fr))"
+     :gap "1.25rem 1.5rem"}]
+
+   [:.tile
+    {:display "grid"
+     :gap "0.85rem"
+     :padding "1.35rem 0 1.5rem"
+     :border-top "1px solid var(--line)"
+     :animation "rise 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both"
+     :animation-delay "calc(var(--i, 0) * 80ms + 120ms)"
+     :transition "transform 220ms ease"}]
+
+   [:.tile:hover
+    {:transform "translateY(-0.2rem)"}]
+
+   [:.tile__head
+    {:display "grid"
+     :gap "0.35rem"
+     :text-decoration "none"}]
+
+   [:.tile__title
+    {:margin 0
+     :font-family "var(--font-display)"
+     :font-size "clamp(1.55rem, 3vw, 2rem)"
+     :letter-spacing "-0.035em"
+     :line-height 1.1}]
+
+   [:.tile__summary
+    {:margin 0
+     :color "var(--ink-soft)"
+     :font-size "0.98rem"}]
+
+   [:.tile__body
+    {:font-size "0.95rem"}]
+
+   [".tile__body h3"
+    {:margin "0.85rem 0 0.4rem"
+     :font-size "0.82rem"
+     :font-weight 600
+     :letter-spacing "0.08em"
+     :text-transform "uppercase"
+     :color "var(--sea)"}]
+
+   [".tile__body ul"
+    {:margin 0
+     :padding-left "1.1rem"}]
+
+   [".tile__body li"
+    {:margin "0.35rem 0"}]
+
+   [".tile__body a"
+    {:color "var(--sea-deep)"
+     :text-decoration-thickness "1px"
+     :text-underline-offset "0.16em"}]
+
+   [".tile__body a:hover"
+    {:color "var(--sea)"}]
+
+   [:.post__summary
+    {:margin "0.85rem 0 0"
+     :max-width "36rem"
+     :color "var(--ink-soft)"
+     :font-size "1.05rem"}]
+
+   [:.post
+    {:padding "2rem 0 1rem"
+     :max-width "42rem"
+     :animation "rise 650ms cubic-bezier(0.2, 0.8, 0.2, 1) both"}]
+
+   [:.post__back
+    {:display "inline-block"
+     :margin-bottom "1.5rem"
+     :font-family "var(--font-display)"
+     :font-weight 600
+     :font-size "0.92rem"
+     :text-decoration "none"
+     :color "var(--sea)"}]
+
+   [:.post__header
+    {:margin-bottom "2rem"}]
+
+   [:.post__date
+    {:display "block"
+     :margin-bottom "0.65rem"
+     :font-family "var(--font-display)"
+     :font-size "0.8rem"
+     :font-weight 600
+     :letter-spacing "0.06em"
+     :text-transform "uppercase"
+     :color "var(--sea)"}]
+
+   [:.post__title
+    {:margin 0
+     :font-family "var(--font-display)"
+     :font-size "clamp(2.2rem, 6vw, 3.4rem)"
+     :letter-spacing "-0.045em"
+     :line-height 1.05}]
+
+   [".prose > :first-child"
+    {:margin-top 0}]
+
+   [".prose h1, .prose h2, .prose h3"
+    {:font-family "var(--font-display)"
+     :letter-spacing "-0.03em"
+     :line-height 1.15}]
+
+   [".prose a"
+    {:color "var(--sea-deep)"}]
+
+   [".prose code"
+    {:font-family "\"ui-monospace\", \"SFMono-Regular\", Menlo, Consolas, monospace"
+     :font-size "0.9em"
+     :background "rgba(43, 79, 155, 0.1)"
+     :padding "0.1em 0.35em"
+     :border-radius "0.35rem"}]
+
+   [".prose pre"
+    {:overflow-x "auto"
+     :padding "1rem 1.1rem"
+     :border-radius "var(--radius)"
+     :background "var(--sea-deep)"
+     :color "var(--foam)"
+     :box-shadow "var(--shadow)"}]
+
+   [".prose pre code"
+    {:background "transparent"
+     :padding 0
+     :color "inherit"}]
+
+   [".prose blockquote"
+    {:margin-left 0
+     :padding-left "1rem"
+     :border-left "3px solid var(--spark)"
+     :color "var(--ink-soft)"}]
+
+   [:.status
+    {:min-height "50vh"
+     :display "grid"
+     :place-content "center"
+     :gap "0.75rem"
+     :text-align "center"
+     :font-family "var(--font-display)"
+     :animation "rise 500ms ease both"}]
+
+   [".status--error pre"
+    {:text-align "left"
+     :max-width "36rem"
+     :overflow "auto"
+     :background "rgba(14, 17, 22, 0.06)"
+     :padding "1rem"
+     :border-radius "0.75rem"}]])
+
+(def ^:private footer
+  [[:.footer
+    {:display "flex"
+     :justify-content "space-between"
+     :align-items "center"
+     :gap "1rem"
+     :max-width "var(--max)"
+     :margin "0 auto"
+     :padding "1.5rem"
+     :border-top "1px solid var(--line)"
+     :font-family "var(--font-display)"
+     :font-size "0.9rem"
+     :color "var(--ink-soft)"}]
+
+   [:.footer__copy
+    {:margin 0}]
+
+   [:.footer__socials
+    {:display "flex"
+     :align-items "center"
+     :gap "1.1rem"}]
+
+   [:.footer__social
+    {:display "inline-flex"
+     :align-items "center"
+     :justify-content "center"
+     :color "var(--ink-soft)"
+     :text-decoration "none"
+     :transition "color 160ms ease, transform 160ms ease, filter 160ms ease"}]
+
+   [".footer__social:hover, .footer__social:focus-visible"
+    {:color "var(--sea)"
+     :transform "translateY(-1px)"}]
+
+   [:.footer__social--site
+    {:position "relative"}]
+
+   [".footer__social--site:hover, .footer__social--site:focus-visible"
+    {:transform "translateY(-2px) scale(1.06)"
+     :filter "drop-shadow(0 4px 12px rgba(43, 79, 155, 0.4))"}]
+
+   [:.footer__icon
+    {:width "1.35rem"
+     :height "1.35rem"
+     :display "block"}]
+
+   [:.footer__mark
+    {:display "block"
+     :width "1.45rem"
+     :height "1.45rem"
+     :border-radius "0.38rem"
+     :overflow "hidden"
+     :box-shadow "0 0 0 1px rgba(14, 17, 22, 0.12)"
+     :transition "box-shadow 160ms ease"}]
+
+   [".footer__social--site:hover .footer__mark, .footer__social--site:focus-visible .footer__mark"
+    {:box-shadow (str
+                  "0 0 0 1px rgba(43, 79, 155, 0.45),\n"
+                  "    0 0 0 3px rgba(201, 162, 74, 0.28),\n"
+                  "    0 2px 10px rgba(43, 79, 155, 0.28)")}]
+
+   [:.footer__mark-img
+    {:display "block"
+     :width "100%"
+     :height "100%"
+     :object-fit "cover"}]
+
+   [:.footer__sr-only
+    {:position "absolute"
+     :width "1px"
+     :height "1px"
+     :padding 0
+     :margin "-1px"
+     :overflow "hidden"
+     :clip "rect(0, 0, 0, 0)"
+     :white-space "nowrap"
+     :border 0}]])
+
+(def ^:private motion
+  [(at-keyframes :rise
+     [:from
+      {:opacity 0
+       :transform "translate3d(0, 16px, 0)"}]
+     [:to
+      {:opacity 1
+       :transform "translate3d(0, 0, 0)"}])
+
+   (at-keyframes :brand-in
+     [:from
+      {:opacity 0
+       :letter-spacing "0.12em"
+       :transform "translate3d(0, 8px, 0)"}]
+     [:to
+      {:opacity 1
+       :letter-spacing "-0.04em"
+       :transform "translate3d(0, 0, 0)"}])])
+
+(def ^:private responsive
+  [(at-media {:max-width "800px"}
+     [:.tile-grid
+      {:grid-template-columns "1fr"}])
+
+   (at-media {:max-width "640px"}
+     [:.forkme
+      {:--forkme-size "7.25rem"}]
+
+     [:.forkme__band
+      {:top "1.45rem"
+       :right "-3.85rem"
+       :width "11.5rem"
+       :gap "0.35rem"
+       :padding "0.42rem 1rem"}]
+
+     [:.forkme__icon
+      {:width "0.92rem"
+       :height "0.92rem"}]
+
+     [:.forkme__kicker
+      {:font-size "0.5rem"}]
+
+     [:.forkme__label
+      {:font-size "0.68rem"}]
+
+     [:.nav
+      {:padding-inline "1.1rem"
+       :padding-right "5.5rem"}]
+
+     [:.app__main
+      {:padding-inline "1.1rem"}]
+
+     [:.footer
+      {:flex-direction "column"
+       :align-items "flex-start"
+       :gap "1.1rem"}])
+
+   (at-media {:prefers-reduced-motion "reduce"}
+     ["*" "*::before" "*::after"
+      {:animation "none !important"
+       :transition "none !important"}])])
+
+(defn rules
+  "Ordered Garden rules that make up the full site stylesheet."
+  []
+  (concat
+   tokens
+   base
+   forkme
+   nav
+   hero
+   content
+   footer
+   motion
+   responsive))
+
+(defn stylesheet
+  "Pretty-printed CSS string for assets/css/daplay.css."
+  []
+  (str
+   "/* Generated from src/main/daplay/styles.clj — do not edit by hand. */\n\n"
+   at-property
+   "\n\n"
+   (apply garden/css {:pretty-print? true} (rules))))
