@@ -127,7 +127,6 @@
       :rel "noopener noreferrer"
       :target "_blank"
       :aria-label "Fork me on GitHub"}
-     [:span.forkme__glow {:aria-hidden "true"}]
      [:span.forkme__band
       [github-mark]
       [:span.forkme__copy
