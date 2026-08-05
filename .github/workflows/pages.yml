@@ -15,8 +15,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  test:
+    name: ClojureScript tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('shadow-cljs.edn', 'package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install JS deps
+        run: npm ci
+
+      - name: Run ClojureScript tests
+        run: npm test
+
+  build:
+    name: Build site
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -25,10 +58,17 @@ jobs:
           ruby-version: "3.3"
           bundler-cache: true
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "21"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('shadow-cljs.edn', 'package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
 
       - uses: actions/setup-node@v4
         with:
@@ -38,19 +78,60 @@ jobs:
       - name: Install JS deps & build ClojureScript
         run: |
           npm ci
-          npx shadow-cljs release app
+          npm run cljs:release
 
       - name: Build Jekyll
         env:
           JEKYLL_ENV: production
+        run: bundle exec jekyll build --destination _site
+
+      - name: Verify build output
         run: |
-          bundle exec jekyll build --destination _site
+          test -f _site/index.html
+          test -f _site/assets/data/site.json
+          test -f assets/js/manifest.json
+          python3 - <<'PY'
+          import json, os, sys
+
+          data = json.load(open("_site/assets/data/site.json"))
+          assert isinstance(data, dict), "site.json must be an object"
+          assert "site" in data or "tiles" in data or "posts" in data, \
+              "site.json missing expected keys"
+          print("site.json ok:", ", ".join(sorted(data.keys())))
+
+          manifest = json.load(open("assets/js/manifest.json"))
+          main = next(m for m in manifest if m.get("module-id") == "main")
+          name = main["output-name"]
+          assert name != "main.js", "release build should emit a hashed main.*.js"
+          path = os.path.join("_site", "assets", "js", name)
+          assert os.path.isfile(path), f"missing hashed bundle: {path}"
+          size = os.path.getsize(path)
+          assert size > 10_000, f"bundle unexpectedly small: {size}"
+          print(f"cljs bundle ok: {name} ({size} bytes)")
+
+          index = open("_site/index.html", encoding="utf-8").read()
+          assert name in index, "index.html does not reference hashed bundle"
+          assert "defer" in index, "script tag should use defer"
+          PY
 
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
+      - name: Summary
+        run: |
+          MAIN=$(python3 -c 'import json; m=json.load(open("assets/js/manifest.json")); print(next(x["output-name"] for x in m if x.get("module-id")=="main"))')
+          SIZE=$(wc -c < "assets/js/$MAIN" | tr -d ' ')
+          {
+            echo "### Build ready for Pages"
+            echo
+            echo "- Artifact: \`_site\`"
+            echo "- CLJS (advanced): \`$MAIN\` (${SIZE} bytes)"
+            echo "- Data: \`assets/data/site.json\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   deploy:
+    name: Deploy
     needs: build
     runs-on: ubuntu-latest
     environment:
@@ -59,3 +140,11 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Summary
+        run: |
+          {
+            echo "### Deployed"
+            echo
+            echo "- URL: ${{ steps.deployment.outputs.page_url }}"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -76,6 +76,121 @@
     (set! (.-__glareBound el) true)
     (attach-glare! el)))
 
+(defn- social-icon [view-box path]
+  [:svg.footer__icon
+   {:viewBox view-box
+    :aria-hidden "true"
+    :focusable "false"}
+   [:path {:fill "currentColor" :d path}]])
+
+(defn- linkedin-icon []
+  [social-icon "0 0 24 24"
+   (str "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136"
+        " 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37"
+        " -1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063"
+        " -.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064"
+        " 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452z"
+        "M22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451"
+        "C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z")])
+
+(defn- twitter-icon []
+  [social-icon "0 0 24 24"
+   (str "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99"
+        " 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833"
+        "L7.084 4.126H5.117z")])
+
+(defn- github-icon []
+  [social-icon "0 0 24 24"
+   (str "M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113"
+        " .82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61"
+        " -4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084"
+        " -.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998"
+        " .108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465"
+        " -2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23"
+        " .96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285"
+        " -1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22"
+        " 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896"
+        " -.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0"
+        " -6.627-5.373-12-12-12")])
+
+(defn- baezdaniel-icon
+  "Brand mark from baezdaniel.cl — Golden Gate under a Pacific sun."
+  []
+  [:span.footer__mark {:aria-hidden "true"}
+   [:img.footer__mark-img
+    {:src "/assets/img/baezdaniel-mark.png"
+     :srcSet (str "/assets/img/baezdaniel-mark.png 64w, "
+                  "/assets/img/baezdaniel-mark@2x.png 96w")
+     :sizes "22px"
+     :alt ""
+     :width 22
+     :height 22
+     :decoding "async"}]])
+
+(defn- with-utm
+  "Append UTM params so destination analytics can attribute the click."
+  [url {:keys [source medium campaign content]}]
+  (let [params (cond-> []
+                 source (conj (str "utm_source=" (js/encodeURIComponent source)))
+                 medium (conj (str "utm_medium=" (js/encodeURIComponent medium)))
+                 campaign (conj (str "utm_campaign=" (js/encodeURIComponent campaign)))
+                 content (conj (str "utm_content=" (js/encodeURIComponent content))))
+        sep (if (str/includes? url "?") "&" "?")]
+    (if (seq params)
+      (str url sep (str/join "&" params))
+      url)))
+
+(defn- social-link [{:keys [href label icon class title track]}]
+  [:a
+   (cond-> {:href href
+            :class (cond-> ["footer__social"]
+                     class (conj class))
+            :rel "noopener noreferrer"
+            :target "_blank"
+            :aria-label label}
+     title (assoc :title title)
+     (:event track) (assoc :data-track-event (:event track))
+     (:category track) (assoc :data-track-category (:category track))
+     (:label track) (assoc :data-track-label (:label track))
+     (:url track) (assoc :data-track-url (:url track)))
+   icon
+   [:span.footer__sr-only label]])
+
+(defn- footer-socials [site]
+  (let [pro-url (:professional_url site)
+        links (cond-> []
+                pro-url
+                (conj {:href (with-utm pro-url
+                               {:source "daplay.cl"
+                                :medium "referral"
+                                :campaign "site_footer"
+                                :content "brand_mark"})
+                       :label "baezdaniel.cl"
+                       :title "Daniel Báez · baezdaniel.cl"
+                       :class "footer__social--site"
+                       :icon [baezdaniel-icon]
+                       :track {:event "social_link_click"
+                               :category "social"
+                               :label "baezdaniel"
+                               :url pro-url}})
+                (:linkedin_username site)
+                (conj {:href (str "https://linkedin.com/in/" (:linkedin_username site))
+                       :label "LinkedIn"
+                       :icon [linkedin-icon]})
+                (:twitter_username site)
+                (conj {:href (str "https://x.com/" (:twitter_username site))
+                       :label "Twitter"
+                       :icon [twitter-icon]})
+                (:github_username site)
+                (conj {:href (str "https://github.com/" (:github_username site))
+                       :label "GitHub"
+                       :icon [github-icon]}))]
+    (when (seq links)
+      [:nav.footer__socials {:aria-label "Social"}
+       (for [link links]
+         ^{:key (:label link)}
+         [social-link link])])))
+
 (defn- forkme [site]
   (when-let [repo (or (:github_repo site)
                       (some-> (:github_username site) (str "/daplay")))]
@@ -84,7 +199,6 @@
       :rel "noopener noreferrer"
       :target "_blank"
       :aria-label "Fork me on GitHub"}
-     [:span.forkme__glow {:aria-hidden "true"}]
      [:span.forkme__band {:ref forkme-band-ref}
       [:span.forkme__glare {:aria-hidden "true"}]
       [github-mark]
@@ -96,10 +210,10 @@
   [:nav.nav {:aria-label "Primary"}
    [brand-mark]
    [:div.nav__links
-    [:a {:href "/tiles/"
-         :class (when (str/starts-with? (or route "") "/tiles/")
+    [:a {:href "/resources/"
+         :class (when (str/starts-with? (or route "") "/resources/")
                   "is-active")}
-     "Tiles"]
+     "Resources"]
     [:a {:href "/"
          :class (when (= route "/") "is-active")}
      "Blog"]
@@ -149,8 +263,8 @@
   [:div.empty
    [:p.empty__title "No posts yet"]
    [:p.empty__body
-    "New notes will show up here first. Until then, the tiles have curated links."]
-   [:a.empty__cta {:href "/tiles/"} "Browse tiles"]])
+    "New notes will show up here first. Until then, the resources have curated links."]
+   [:a.empty__cta {:href "/resources/"} "Browse resources"]])
 
 (defn home [{:keys [posts]}]
   [:div
@@ -164,10 +278,10 @@
          [post-item post i])]
       [empty-posts])]])
 
-(defn tiles-board [{:keys [tiles]}]
+(defn resources-board [{:keys [tiles]}]
   [:div
    [:header.page-hero
-    [:h1.page-hero__title "Tiles"]
+    [:h1.page-hero__title "Resources"]
     [:p.page-hero__lede
      "Curated lists of useful links I keep coming back to."]]
    [:section.section
@@ -179,7 +293,7 @@
 (defn tile-page [{:keys [tile]}]
   (let [html (md/render (:markdown tile))]
     [:article.post
-     [:a.post__back {:href "/tiles/"} "← Tiles"]
+     [:a.post__back {:href "/resources/"} "← Resources"]
      [:header.post__header
       [:h1.post__title (:title tile)]
       (when (seq (:summary tile))
@@ -233,16 +347,12 @@
         :loading [loading]
         :error   [error-view error]
         (cond
-          (= route "/")       [home {:posts posts}]
-          (= route "/tiles/") [tiles-board {:tiles tiles}]
-          tile                [tile-page {:tile tile}]
+          (= route "/")          [home {:posts posts}]
+          (= route "/resources/") [resources-board {:tiles tiles}]
+          tile                   [tile-page {:tile tile}]
           post                [post-page {:post post}]
           page                [page-view {:page page}]
           :else               [not-found]))]
      [:footer.footer
-      [:span (:title site)]
-      (when-let [gh (:github_username site)]
-        [:a {:href (str "https://github.com/" gh)
-             :rel "noopener noreferrer"
-             :target "_blank"}
-         (str "@" gh)])]]))
+      [:p.footer__copy "daplay.cl · all rights reserved"]
+      [footer-socials site]]]))

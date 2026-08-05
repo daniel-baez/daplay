@@ -9,7 +9,10 @@ layout: null
     "baseurl": {{ site.baseurl | jsonify }},
     "email": {{ site.email | jsonify }},
     "github_username": {{ site.github_username | jsonify }},
-    "github_repo": {{ site.github_repo | jsonify }}
+    "github_repo": {{ site.github_repo | jsonify }},
+    "twitter_username": {{ site.twitter_username | jsonify }},
+    "linkedin_username": {{ site.linkedin_username | jsonify }},
+    "professional_url": {{ site.professional_url | jsonify }}
   },
   "tiles": [
     {%- assign sorted_tiles = site.tiles | sort: "order" -%}
@@ -46,7 +49,7 @@ layout: null
   "pages": [
     {%- assign first_page = true -%}
     {%- for page in site.pages -%}
-    {%- if page.layout == "app" and page.title and page.url != "/" and page.url != "/tiles/" and page.url != "/404.html" -%}
+    {%- if page.layout == "app" and page.title and page.url != "/" and page.url != "/resources/" and page.url != "/404.html" -%}
     {%- unless first_page -%},{%- endunless -%}
     {
       "title": {{ page.title | jsonify }},

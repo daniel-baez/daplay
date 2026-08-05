@@ -6,6 +6,9 @@ baseurl: ""
 url: "https://daplay.cl"
 github_username: daniel-baez
 github_repo: daniel-baez/daplay
+twitter_username: daplay
+linkedin_username: baezdaniel
+professional_url: "https://baezdaniel.cl"
 
 # Build settings — pages use the CLJS `app` layout; no theme UI.
 plugins:
@@ -14,7 +17,7 @@ plugins:
 collections:
   tiles:
     output: true
-    permalink: /tiles/:name/
+    permalink: /resources/:name/
 
 defaults:
   - scope:
@@ -39,6 +42,7 @@ exclude:
   - package.json
   - package-lock.json
   - src
+  - out
   - flake.nix
   - flake.lock
   - .envrc

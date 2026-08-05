@@ -3,8 +3,10 @@
   "private": true,
   "scripts": {
     "cljs:watch": "shadow-cljs watch app",
-    "cljs:release": "shadow-cljs release app",
-    "cljs:compile": "shadow-cljs compile app"
+    "cljs:release": "rm -rf assets/js && shadow-cljs release app",
+    "cljs:compile": "shadow-cljs compile app",
+    "test": "shadow-cljs compile test",
+    "test:watch": "shadow-cljs watch test"
   },
   "devDependencies": {
     "shadow-cljs": "^3.2.1"

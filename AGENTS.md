@@ -22,11 +22,16 @@ This repository is a **Jekyll + ClojureScript** site deployed via GitHub Pages
 The `flake.nix` dev shell provides Ruby, bundler, Node, JDK 21, and helpers.
 
 - `nix develop` → then `serve` (bundle/npm if needed, `shadow-cljs compile app`,
-  then `jekyll serve --host 0.0.0.0` on port `4000`).
-- `build-site` → `shadow-cljs release app` + `jekyll build`.
+ then `jekyll serve --host 0.0.0.0` on port `4000`).
+- `build-site` / `npm run cljs:release` → Closure `:advanced` production JS
+ (hashed `main.<hash>.js` via `:module-hash-names`) + `jekyll build`.
+- `test-site` / `npm test` → ClojureScript node tests (`src/test/`, shadow-cljs
+ `:test` build).
 - For iterative CLJS work: `npm run cljs:watch` in one terminal, `serve` (or
-  jekyll serve) in another.
+ jekyll serve) in another.
 - Without nix: `npm install && npx shadow-cljs compile app && bundle exec jekyll serve`.
+- CI: `.github/workflows/ci.yml` runs tests on PRs; `pages.yml` runs
+ test → build → deploy on `main`.
 
 ### Nix + direnv workflow
 
