@@ -81,7 +81,20 @@
      :height 22
      :decoding "async"}]])
 
-(defn- social-link [{:keys [href label icon class title]}]
+(defn- with-utm
+  "Append UTM params so destination analytics can attribute the click."
+  [url {:keys [source medium campaign content]}]
+  (let [params (cond-> []
+                 source (conj (str "utm_source=" (js/encodeURIComponent source)))
+                 medium (conj (str "utm_medium=" (js/encodeURIComponent medium)))
+                 campaign (conj (str "utm_campaign=" (js/encodeURIComponent campaign)))
+                 content (conj (str "utm_content=" (js/encodeURIComponent content))))
+        sep (if (str/includes? url "?") "&" "?")]
+    (if (seq params)
+      (str url sep (str/join "&" params))
+      url)))
+
+(defn- social-link [{:keys [href label icon class title track]}]
   [:a
    (cond-> {:href href
             :class (cond-> ["footer__social"]
@@ -89,18 +102,31 @@
             :rel "noopener noreferrer"
             :target "_blank"
             :aria-label label}
-     title (assoc :title title))
+     title (assoc :title title)
+     (:event track) (assoc :data-track-event (:event track))
+     (:category track) (assoc :data-track-category (:category track))
+     (:label track) (assoc :data-track-label (:label track))
+     (:url track) (assoc :data-track-url (:url track)))
    icon
    [:span.footer__sr-only label]])
 
 (defn- footer-socials [site]
-  (let [links (cond-> []
-                (:professional_url site)
-                (conj {:href (:professional_url site)
+  (let [pro-url (:professional_url site)
+        links (cond-> []
+                pro-url
+                (conj {:href (with-utm pro-url
+                               {:source "daplay.cl"
+                                :medium "referral"
+                                :campaign "site_footer"
+                                :content "brand_mark"})
                        :label "baezdaniel.cl"
                        :title "Daniel Báez · baezdaniel.cl"
                        :class "footer__social--site"
-                       :icon [baezdaniel-icon]})
+                       :icon [baezdaniel-icon]
+                       :track {:event "social_link_click"
+                               :category "social"
+                               :label "baezdaniel"
+                               :url pro-url}})
                 (:linkedin_username site)
                 (conj {:href (str "https://linkedin.com/in/" (:linkedin_username site))
                        :label "LinkedIn"
