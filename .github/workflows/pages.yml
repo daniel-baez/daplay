@@ -89,7 +89,10 @@ jobs:
         run: |
           test -f _site/index.html
           test -f _site/assets/data/site.json
+          test -f _site/assets/css/daplay.css
           test -f assets/js/manifest.json
+          grep -q ':root' _site/assets/css/daplay.css
+          grep -q '@property --mx' _site/assets/css/daplay.css
           python3 - <<'PY'
           import json, os, sys
 

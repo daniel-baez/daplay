@@ -12,8 +12,12 @@ This repository is a **Jekyll + ClojureScript** site deployed via GitHub Pages
 - **UI (ClojureScript)**: `src/main/daplay/` compiled by **shadow-cljs** into
   `assets/js/`. Reagent mounts on `#app` (`_layouts/app.html`) and renders from
   the JSON data (markdown-it in the browser). The home route draws a tile grid.
+- **CSS (Garden)**: styles live in `src/main/daplay/styles.clj` and are compiled
+  to `assets/css/daplay.css` via `npm run css:build` (`daplay.css/write!`). Do
+  not edit the generated CSS by hand.
 - **Key files**: `_config.yml`, `_layouts/app.html`, `assets/data/site.json`,
-  `assets/css/daplay.css`, `_tiles/`, `shadow-cljs.edn`, `package.json`, `Gemfile`.
+  `src/main/daplay/styles.clj`, `assets/css/daplay.css`, `_tiles/`,
+  `shadow-cljs.edn`, `package.json`, `Gemfile`.
 - **Build output**: `_site/` (gitignored). Also gitignored: `node_modules/`,
   `.shadow-cljs/`, `assets/js/`, `vendor/bundle`, Jekyll caches.
 
@@ -21,15 +25,16 @@ This repository is a **Jekyll + ClojureScript** site deployed via GitHub Pages
 
 The `flake.nix` dev shell provides Ruby, bundler, Node, JDK 21, and helpers.
 
-- `nix develop` → then `serve` (bundle/npm if needed, `shadow-cljs compile app`,
- then `jekyll serve --host 0.0.0.0` on port `4000`).
-- `build-site` / `npm run cljs:release` → Closure `:advanced` production JS
- (hashed `main.<hash>.js` via `:module-hash-names`) + `jekyll build`.
+- `nix develop` → then `serve` (bundle/npm if needed, Garden CSS +
+ `shadow-cljs compile app`, then `jekyll serve --host 0.0.0.0` on port `4000`).
+- `build-site` / `npm run cljs:release` → Garden CSS + Closure `:advanced`
+ production JS (hashed `main.<hash>.js` via `:module-hash-names`) + `jekyll build`.
+- `npm run css:build` → regenerate `assets/css/daplay.css` from Garden.
 - `test-site` / `npm test` → ClojureScript node tests (`src/test/`, shadow-cljs
- `:test` build).
+ `:test` build); also regenerates CSS.
 - For iterative CLJS work: `npm run cljs:watch` in one terminal, `serve` (or
- jekyll serve) in another.
-- Without nix: `npm install && npx shadow-cljs compile app && bundle exec jekyll serve`.
+ jekyll serve) in another. After editing `styles.clj`, re-run `npm run css:build`.
+- Without nix: `npm install && npm run cljs:compile && bundle exec jekyll serve`.
 - CI: `.github/workflows/ci.yml` runs tests on PRs; `pages.yml` runs
  test → build → deploy on `main`.
 
