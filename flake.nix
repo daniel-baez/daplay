@@ -61,6 +61,7 @@
           export BUNDLE_PATH="''${BUNDLE_PATH:-vendor/bundle}"
           bundle check >/dev/null 2>&1 || bundle install
           [[ -d node_modules ]] || npm install
+          rm -rf assets/js
           npx shadow-cljs release app
           bundle exec jekyll build "$@"
         '';
