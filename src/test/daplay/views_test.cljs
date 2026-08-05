@@ -12,7 +12,8 @@
    :github_repo "daniel-baez/daplay"
    :github_username "daniel-baez"
    :twitter_username "daplay"
-   :linkedin_username "baezdaniel"})
+   :linkedin_username "baezdaniel"
+   :professional_url "https://baezdaniel.cl"})
 
 (def ^:private sample-posts
   [{:title "First note"
@@ -94,3 +95,14 @@
     (is (str/includes? h "href=\"https://github.com/daniel-baez/daplay\""))
     (is (str/includes? h "aria-label=\"Primary\""))
     (is (str/includes? h "daplay.cl"))))
+
+(deftest shell-baezdaniel-link-analytics
+  (let [h (shell {:route "/"})]
+    (is (str/includes? h "utm_source=daplay.cl"))
+    (is (str/includes? h "utm_medium=referral"))
+    (is (str/includes? h "utm_campaign=site_footer"))
+    (is (str/includes? h "utm_content=brand_mark"))
+    (is (str/includes? h "data-track-event=\"social_link_click\""))
+    (is (str/includes? h "data-track-category=\"social\""))
+    (is (str/includes? h "data-track-label=\"baezdaniel\""))
+    (is (str/includes? h "data-track-url=\"https://baezdaniel.cl\""))))
