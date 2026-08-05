@@ -42,6 +42,7 @@ exclude:
   - package.json
   - package-lock.json
   - src
+  - out
   - flake.nix
   - flake.lock
   - .envrc
