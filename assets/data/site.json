@@ -11,7 +11,8 @@ layout: null
     "github_username": {{ site.github_username | jsonify }},
     "github_repo": {{ site.github_repo | jsonify }},
     "twitter_username": {{ site.twitter_username | jsonify }},
-    "linkedin_username": {{ site.linkedin_username | jsonify }}
+    "linkedin_username": {{ site.linkedin_username | jsonify }},
+    "professional_url": {{ site.professional_url | jsonify }}
   },
   "tiles": [
     {%- assign sorted_tiles = site.tiles | sort: "order" -%}
