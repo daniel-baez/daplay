@@ -6,8 +6,8 @@ order: 3
 
 ### Styles & teachers
 
-- [Baptiste Institute](https://www.youtube.com/@BaptisteInstitute) — power vinyasa and Baptiste methodology
-- [Iyengar Yoga](https://www.youtube.com/@IyengarYogaOfficial) — alignment-focused practice and philosophy
+- [Baron Baptiste](https://www.youtube.com/@BaronBaptisteShow) — power vinyasa, Baptiste methodology, and practices
+- [Iyengar Yoga Official](https://www.youtube.com/channel/UCCC6RLVdy8rwPUy-Bt-qTCg) — alignment-focused practice and philosophy
 - [Ashtanga Yoga](https://www.youtube.com/@ashtangayoga) — traditional Mysore / primary series resources
 
 ### Practice platforms
